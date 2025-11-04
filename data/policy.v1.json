@@ -5,8 +5,8 @@
   "app_min_version": "2.0.0",
   "security": {
     "signature_alg": "sha256",
-    "signature": "REPLACE_WITH_SHA256_OR_SIGNATURE",
-    "enforce_hash": false,
+    "signature": "3e3de9b81d03ddd0442b4a7020b0083e23dd4e89aef99f5f3720ef32f4abc964",
+    "enforce_hash": true,
     "on_hash_mismatch": "safe_mode"
   },
   "defaults": {

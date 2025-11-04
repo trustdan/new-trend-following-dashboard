@@ -48,3 +48,15 @@ func (p *PositionSizing) Render() fyne.CanvasObject {
 
 	return container.NewPadded(content)
 }
+
+// Validate checks if the screen's data is valid
+func (s *PositionSizing) Validate() bool {
+	// Position size must be calculated
+	return s.state.CurrentTrade != nil &&
+		s.state.CurrentTrade.PositionSize > 0
+}
+
+// GetName returns the screen name
+func (s *PositionSizing) GetName() string {
+	return "position_sizing"
+}

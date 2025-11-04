@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "flags": {
+    "trade_management": {
+      "enabled": false,
+      "description": "Screen 9: Edit/delete trades",
+      "phase": 2,
+      "since_version": "2.1.0"
+    },
+    "sample_data_generator": {
+      "enabled": false,
+      "description": "Generate sample trades for testing",
+      "phase": 2,
+      "since_version": "2.1.0"
+    },
+    "vimium_mode": {
+      "enabled": false,
+      "description": "Keyboard navigation shortcuts",
+      "phase": 2,
+      "since_version": "2.2.0"
+    },
+    "advanced_analytics": {
+      "enabled": false,
+      "description": "Win rate tracking, equity curves",
+      "phase": 2,
+      "since_version": "2.3.0"
+    }
+  }
+}

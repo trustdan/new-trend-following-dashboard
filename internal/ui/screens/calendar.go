@@ -40,3 +40,14 @@ func (c *Calendar) Render() fyne.CanvasObject {
 
 	return container.NewPadded(content)
 }
+
+// Validate checks if the screen's data is valid
+func (s *Calendar) Validate() bool {
+	// Calendar is always valid (display-only)
+	return true
+}
+
+// GetName returns the screen name
+func (s *Calendar) GetName() string {
+	return "calendar"
+}

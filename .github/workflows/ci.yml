@@ -1,0 +1,175 @@
+name: TF-Engine CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  validate-policy:
+    name: Validate Policy Signature
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Verify Policy Signature
+        run: go run scripts/verify_policy_hash.go
+
+      - name: Check if policy file exists
+        run: |
+          if [ ! -f "data/policy.v1.json" ]; then
+            echo "❌ Policy file not found"
+            exit 1
+          fi
+          echo "✅ Policy file exists"
+
+  test:
+    name: Run Tests
+    needs: validate-policy
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run unit tests
+        run: go test -v -race -coverprofile=coverage.out ./...
+
+      - name: Check test coverage
+        run: |
+          go tool cover -func=coverage.out
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.out
+
+  lint:
+    name: Lint Code
+    needs: validate-policy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Run go fmt
+        run: |
+          if [ -n "$(gofmt -s -l .)" ]; then
+            echo "❌ Code is not formatted. Run 'go fmt ./...'"
+            gofmt -s -l .
+            exit 1
+          fi
+          echo "✅ Code is properly formatted"
+
+      - name: Run go vet
+        run: go vet ./...
+
+  build:
+    name: Build Application
+    needs: [test, lint]
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Build Windows executable
+        run: go build -v -o tf-engine.exe .
+
+      - name: Check if executable was created
+        run: |
+          if (Test-Path tf-engine.exe) {
+            Write-Host "✅ Executable built successfully"
+            Get-Item tf-engine.exe | Select-Object Name, Length
+          } else {
+            Write-Host "❌ Executable not found"
+            exit 1
+          }
+        shell: pwsh
+
+      - name: Upload executable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tf-engine-windows
+          path: tf-engine.exe
+
+  feature-flags-check:
+    name: Verify Feature Flags
+    needs: validate-policy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check feature flags file
+        run: |
+          if [ ! -f "feature.flags.json" ]; then
+            echo "❌ Feature flags file not found"
+            exit 1
+          fi
+          echo "✅ Feature flags file exists"
+
+      - name: Verify Phase 2 features are disabled
+        run: |
+          # Check that all Phase 2 features have "enabled": false
+          if grep -E '"phase":\s*2' feature.flags.json | grep -q '"enabled":\s*true'; then
+            echo "❌ Phase 2 features must be disabled by default"
+            exit 1
+          fi
+          echo "✅ All Phase 2 features are disabled"
+
+  folder-structure-check:
+    name: Verify Folder Structure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check required directories exist
+        run: |
+          REQUIRED_DIRS=(
+            "internal/screens/_post_mvp"
+            "internal/testdata"
+            "internal/config"
+            "data"
+            "data/backups"
+            "logs"
+            "scripts"
+          )
+
+          for dir in "${REQUIRED_DIRS[@]}"; do
+            if [ ! -d "$dir" ]; then
+              echo "❌ Required directory missing: $dir"
+              exit 1
+            fi
+            echo "✅ $dir exists"
+          done
+
+          echo "✅ All required directories exist"

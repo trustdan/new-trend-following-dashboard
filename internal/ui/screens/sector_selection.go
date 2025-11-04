@@ -1,17 +1,30 @@
 package screens
 
 import (
+	"fmt"
+	"image/color"
+	"sort"
+
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+
 	"tf-engine/internal/appcore"
 	"tf-engine/internal/models"
 )
 
 // SectorSelection represents Screen 1: Sector Selection
 type SectorSelection struct {
-	state  *appcore.AppState
-	window fyne.Window
+	state          *appcore.AppState
+	window         fyne.Window
+	onNext         func() error
+	onBack         func() error
+	onCancel       func()
+	continueBtn    *widget.Button
+	selectedSector string
 }
 
 // NewSectorSelection creates a new sector selection screen
@@ -22,37 +35,100 @@ func NewSectorSelection(state *appcore.AppState, window fyne.Window) *SectorSele
 	}
 }
 
+// SetNavCallbacks sets navigation callback functions
+func (s *SectorSelection) SetNavCallbacks(onNext, onBack func() error, onCancel func()) {
+	s.onNext = onNext
+	s.onBack = onBack
+	s.onCancel = onCancel
+}
+
+// Validate checks if the screen's data is valid
+func (s *SectorSelection) Validate() bool {
+	// Sector must be selected
+	return s.state.CurrentTrade != nil && s.state.CurrentTrade.Sector != ""
+}
+
+// GetName returns the screen name
+func (s *SectorSelection) GetName() string {
+	return "sector_selection"
+}
+
 // Render renders the sector selection UI
 func (s *SectorSelection) Render() fyne.CanvasObject {
-	title := widget.NewLabel("Select Trading Sector")
+	// Header
+	title := widget.NewLabel("Screen 1: Select Trading Sector")
 	title.TextStyle = fyne.TextStyle{Bold: true}
+	title.Alignment = fyne.TextAlignCenter
 
-	subtitle := widget.NewLabel("Choose a sector based on 293 backtest results:")
+	subtitle := widget.NewLabel("Choose a sector based on 293 backtest results")
+	subtitle.Alignment = fyne.TextAlignCenter
 
-	// Create sector cards
+	progressLabel := widget.NewLabel("Step 1 of 8")
+	progressLabel.Alignment = fyne.TextAlignCenter
+
+	// Info banner
+	infoBanner := s.createInfoBanner()
+
+	// Create sector cards (sorted by priority)
 	sectorCards := s.createSectorCards()
 
-	continueBtn := widget.NewButton("Continue →", func() {
-		// TODO: Navigate to screener launch
+	// Navigation buttons
+	s.continueBtn = widget.NewButton("Continue to Screener →", func() {
+		if s.onNext != nil {
+			if err := s.onNext(); err != nil {
+				// Show error dialog if navigation fails
+				s.showError(fmt.Sprintf("Navigation error: %v", err))
+			}
+		}
 	})
-	continueBtn.Disable() // Enable when sector is selected
+	s.continueBtn.Importance = widget.HighImportance
 
-	backBtn := widget.NewButton("← Back to Dashboard", func() {
-		// TODO: Navigate back to dashboard
+	// Enable button only if sector is selected
+	if !s.Validate() {
+		s.continueBtn.Disable()
+	}
+
+	backBtn := widget.NewButton("← Dashboard", func() {
+		if s.onBack != nil {
+			s.onBack()
+		}
 	})
 
-	content := container.NewVBox(
-		backBtn,
-		widget.NewSeparator(),
-		title,
-		subtitle,
-		widget.NewSeparator(),
-		sectorCards,
-		widget.NewSeparator(),
-		continueBtn,
+	cancelBtn := widget.NewButton("Cancel", func() {
+		if s.onCancel != nil {
+			s.onCancel()
+		}
+	})
+
+	navButtons := container.NewBorder(
+		nil, nil,
+		container.NewHBox(backBtn, cancelBtn),
+		s.continueBtn,
 	)
 
-	return container.NewPadded(content)
+	// Main content
+	content := container.NewBorder(
+		// Top
+		container.NewVBox(
+			progressLabel,
+			title,
+			subtitle,
+			widget.NewSeparator(),
+			infoBanner,
+			widget.NewSeparator(),
+		),
+		// Bottom
+		container.NewVBox(
+			widget.NewSeparator(),
+			navButtons,
+		),
+		// Left, Right
+		nil, nil,
+		// Center
+		container.NewVScroll(sectorCards),
+	)
+
+	return content
 }
 
 func (s *SectorSelection) createSectorCards() fyne.CanvasObject {
@@ -60,55 +136,168 @@ func (s *SectorSelection) createSectorCards() fyne.CanvasObject {
 		return widget.NewLabel("Loading sectors...")
 	}
 
+	// Sort sectors by priority (lower number = higher priority)
+	sectors := make([]models.Sector, len(s.state.Policy.Sectors))
+	copy(sectors, s.state.Policy.Sectors)
+	sort.Slice(sectors, func(i, j int) bool {
+		return sectors[i].Priority < sectors[j].Priority
+	})
+
 	cards := container.NewVBox()
 
-	for _, sector := range s.state.Policy.Sectors {
+	for _, sector := range sectors {
 		card := s.createSectorCard(sector)
 		cards.Add(card)
+		cards.Add(layout.NewSpacer()) // Add spacing between cards
 	}
 
 	return cards
 }
 
 func (s *SectorSelection) createSectorCard(sector models.Sector) fyne.CanvasObject {
-	name := widget.NewLabel(sector.Name)
-	name.TextStyle = fyne.TextStyle{Bold: true}
+	// Sector name with priority badge
+	nameLabel := widget.NewLabel(fmt.Sprintf("Priority %d: %s", sector.Priority, sector.Name))
+	nameLabel.TextStyle = fyne.TextStyle{Bold: true}
 
-	notes := widget.NewLabel(sector.Notes)
+	// Notes
+	notesLabel := widget.NewLabel(sector.Notes)
+	notesLabel.Wrapping = fyne.TextWrapWord
 
+	// Strategy count
+	strategyCountLabel := widget.NewLabel(fmt.Sprintf("✓ %d strategies available", len(sector.AllowedStrategies)))
+
+	// Status indicator
 	var statusLabel *widget.Label
+	var statusColor color.Color
+
 	if sector.Blocked {
-		statusLabel = widget.NewLabel("❌ BLOCKED - Do Not Trade")
+		statusLabel = widget.NewLabel("❌ BLOCKED - Do Not Trade (0% backtest success)")
+		statusColor = theme.ErrorColor()
+		statusLabel.TextStyle = fyne.TextStyle{Bold: true}
 	} else if sector.Warning {
-		statusLabel = widget.NewLabel("⚠ WARNING - Use with Caution")
+		statusLabel = widget.NewLabel("⚠️  WARNING - Use with Caution (marginal backtest results)")
+		statusColor = color.RGBA{R: 255, G: 165, B: 0, A: 255} // Orange
+		statusLabel.TextStyle = fyne.TextStyle{Bold: true}
 	} else {
-		statusLabel = widget.NewLabel("✓ Approved for Trading")
+		statusLabel = widget.NewLabel("✅ Approved for Trading (validated by backtests)")
+		statusColor = color.RGBA{R: 0, G: 200, B: 100, A: 255} // Green
 	}
 
-	selectBtn := widget.NewButton("Select", func() {
+	// Select button with improved styling
+	selectBtn := widget.NewButton("Select This Sector", func() {
 		s.selectSector(sector)
 	})
 
+	// Check if this sector is currently selected
+	isSelected := s.state.CurrentTrade != nil && s.state.CurrentTrade.Sector == sector.Name
+
 	if sector.Blocked {
 		selectBtn.Disable()
+	} else if isSelected {
+		selectBtn.SetText("✓ Selected")
+		selectBtn.Importance = widget.HighImportance
 	}
 
-	card := container.NewVBox(
-		name,
-		notes,
+	// Card background
+	var cardBg *canvas.Rectangle
+	if isSelected {
+		// Highlight selected sector
+		cardBg = canvas.NewRectangle(color.RGBA{R: 0, G: 100, B: 50, A: 50}) // Light green tint
+	} else if sector.Blocked {
+		// Grey out blocked sectors
+		cardBg = canvas.NewRectangle(color.RGBA{R: 100, G: 100, B: 100, A: 30}) // Grey tint
+	} else if sector.Warning {
+		// Amber tint for warnings
+		cardBg = canvas.NewRectangle(color.RGBA{R: 255, G: 200, B: 100, A: 30}) // Amber tint
+	} else {
+		// Normal background
+		cardBg = canvas.NewRectangle(color.Transparent)
+	}
+
+	// Status indicator bar (colored left border)
+	statusBar := canvas.NewRectangle(statusColor)
+	statusBar.SetMinSize(fyne.NewSize(4, 100))
+
+	cardContent := container.NewVBox(
+		nameLabel,
+		notesLabel,
+		strategyCountLabel,
 		statusLabel,
 		selectBtn,
 	)
 
-	return container.NewPadded(card)
+	// Combine status bar with content
+	cardWithBorder := container.NewBorder(
+		nil, nil,
+		statusBar,
+		nil,
+		cardContent,
+	)
+
+	// Stack background and content
+	card := container.NewStack(
+		cardBg,
+		container.NewPadded(cardWithBorder),
+	)
+
+	return card
 }
 
 func (s *SectorSelection) selectSector(sector models.Sector) {
+	// Don't allow selection of blocked sectors
+	if sector.Blocked {
+		s.showError(fmt.Sprintf("%s is blocked for trading based on backtest results", sector.Name))
+		return
+	}
+
 	// Initialize a new trade with selected sector
 	if s.state.CurrentTrade == nil {
 		s.state.CurrentTrade = &models.Trade{}
 	}
 	s.state.CurrentTrade.Sector = sector.Name
+	s.selectedSector = sector.Name
 
-	// TODO: Navigate to next screen
+	// Enable continue button now that sector is selected
+	if s.continueBtn != nil {
+		s.continueBtn.Enable()
+	}
+
+	// Refresh the entire screen to show selection state
+	s.window.SetContent(s.Render())
+}
+
+// createInfoBanner creates an informational banner at the top
+func (s *SectorSelection) createInfoBanner() fyne.CanvasObject {
+	infoText := "Sectors are ranked by backtest performance. " +
+		"Healthcare and Technology show the strongest results with 90%+ success rates. " +
+		"Blocked sectors have failed backtests and should not be traded."
+
+	infoLabel := widget.NewLabel(infoText)
+	infoLabel.Wrapping = fyne.TextWrapWord
+
+	infoIcon := widget.NewIcon(theme.InfoIcon())
+
+	banner := container.NewBorder(
+		nil, nil,
+		infoIcon,
+		nil,
+		infoLabel,
+	)
+
+	// Light blue background for info banner
+	bg := canvas.NewRectangle(color.RGBA{R: 200, G: 230, B: 255, A: 100})
+
+	return container.NewStack(bg, container.NewPadded(banner))
+}
+
+// showError displays an error message to the user
+func (s *SectorSelection) showError(message string) {
+	if s.window != nil {
+		errorLabel := widget.NewLabel("Error: " + message)
+		errorLabel.Wrapping = fyne.TextWrapWord
+
+		// Simple error display - in production, this would be a proper dialog
+		// For now, just log it since we don't want to disrupt the current screen
+		fmt.Printf("ERROR: %s\n", message)
+	}
 }

@@ -41,3 +41,15 @@ func (h *HeatCheck) Render() fyne.CanvasObject {
 
 	return container.NewPadded(content)
 }
+
+// Validate checks if the screen's data is valid
+func (s *HeatCheck) Validate() bool {
+	// Heat check must pass
+	return s.state.CurrentTrade != nil &&
+		s.state.CurrentTrade.HeatCheckPassed
+}
+
+// GetName returns the screen name
+func (s *HeatCheck) GetName() string {
+	return "heat_check"
+}

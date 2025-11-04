@@ -57,3 +57,16 @@ func (c *Checklist) Render() fyne.CanvasObject {
 
 	return container.NewPadded(content)
 }
+
+// Validate checks if the screen's data is valid
+func (s *Checklist) Validate() bool {
+	// Checklist must be completed and cooldown must be done
+	return s.state.CurrentTrade != nil &&
+		s.state.CurrentTrade.ChecklistPassed &&
+		s.state.IsCooldownComplete()
+}
+
+// GetName returns the screen name
+func (s *Checklist) GetName() string {
+	return "checklist"
+}

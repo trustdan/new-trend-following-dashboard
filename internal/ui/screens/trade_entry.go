@@ -57,3 +57,15 @@ func (t *TradeEntry) Render() fyne.CanvasObject {
 
 	return container.NewPadded(content)
 }
+
+// Validate checks if the screen's data is valid
+func (s *TradeEntry) Validate() bool {
+	// Options strategy must be selected
+	return s.state.CurrentTrade != nil &&
+		s.state.CurrentTrade.OptionsStrategy != ""
+}
+
+// GetName returns the screen name
+func (s *TradeEntry) GetName() string {
+	return "trade_entry"
+}
