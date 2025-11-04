@@ -8,15 +8,16 @@ import (
 
 // Policy represents the complete policy configuration
 type Policy struct {
-	PolicyID      string              `json:"policy_id"`
-	Version       string              `json:"version"`
-	GeneratedAt   time.Time           `json:"generated_at"`
-	Sectors       []Sector            `json:"sectors"`
-	Strategies    map[string]Strategy `json:"strategies"`
-	Checklist     Checklist           `json:"checklist"`
-	Defaults      PolicyDefaults      `json:"defaults"`
-	Calendar      CalendarConfig      `json:"calendar"`
-	FinvizHelpers map[string]string   `json:"finviz_helpers"`
+	PolicyID        string                     `json:"policy_id"`
+	Version         string                     `json:"version"`
+	GeneratedAt     time.Time                  `json:"generated_at"`
+	Sectors         []Sector                   `json:"sectors"`
+	Strategies      map[string]Strategy        `json:"strategies"`
+	Checklist       Checklist                  `json:"checklist"`
+	Defaults        PolicyDefaults             `json:"defaults"`
+	Calendar        CalendarConfig             `json:"calendar"`
+	FinvizHelpers   map[string]string          `json:"finviz_helpers"`
+	ScreenerSorting map[string]ScreenerSorting `json:"screener_sorting"`
 }
 
 // Sector represents a trading sector configuration
@@ -63,6 +64,13 @@ type CalendarConfig struct {
 	FutureDays int    `json:"future_days"`
 	YAxis      string `json:"y_axis"`
 	BarLabel   string `json:"bar_label"`
+}
+
+// ScreenerSorting defines how to sort screener results
+type ScreenerSorting struct {
+	SortBy    string `json:"sort_by"`
+	Direction string `json:"direction"`
+	Rationale string `json:"rationale"`
 }
 
 // LoadPolicy loads policy from JSON file

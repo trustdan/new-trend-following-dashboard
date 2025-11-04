@@ -96,6 +96,10 @@ func TestCooldownTimer_CallsOnComplete(t *testing.T) {
 }
 
 func TestCooldownTimer_Stop(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping timing-sensitive cooldown timer test in short mode")
+	}
+
 	duration := 10 * time.Second
 	timer := NewCooldownTimer(duration, nil)
 
@@ -160,6 +164,10 @@ func TestNewCooldownTimerFromTime_AlreadyComplete(t *testing.T) {
 }
 
 func TestNewCooldownTimerFromTime_PartiallyComplete(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping timing-sensitive cooldown timer test in short mode")
+	}
+
 	duration := 5 * time.Second
 	startTime := time.Now().Add(-3 * time.Second) // Started 3 seconds ago
 

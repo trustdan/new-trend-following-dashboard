@@ -2551,12 +2551,648 @@ This roadmap provides a complete blueprint for building TF-Engine 2.0 from polic
 - Phase 3: 1 week
 - Phase 4: 3 days
 - Phase 5: 1 week (UAT)
+- Phase 6: 2-3 days (Warning-Based Trading System)
 
-**Total:** ~8-9 weeks to MVP release
+**Total:** ~8-9 weeks to MVP release, +3 days for Phase 6
 
 ---
 
-**Document Version:** 1.0.0
-**Last Updated:** 2025-11-03
+## Phase 6: Warning-Based Trading System (Post-MVP)
+
+### Overview
+
+**Goal:** Shift from prescriptive (hard-blocking) to permissive (warning-based) architecture to allow user flexibility while preserving research-driven guardrails.
+
+**Duration:** 2-3 days
+
+**Status:** PLANNED (Not started as of November 4, 2025)
+
+### Context & Motivation
+
+**Current State (Phase 5):**
+- Utilities sector is **hard-blocked** (user cannot trade it at all)
+- Sector-strategy filtering is **enforced** (user can only select "allowed" strategies for a sector)
+- Based on roadmap line 19: "Relaxing sector guardrails" was explicitly a **non-goal**
+
+**Requested Change:**
+- **Unblock Utilities** for diversification purposes
+- **Remove hard filtering** of strategies per sector
+- **Add visual warning system** with color-coded suitability ratings
+- **Add acknowledgement checkboxes** for risky selections
+- **Preserve research insights** through UI warnings instead of hard blocks
+
+**Architectural Shift:**
+- FROM: System prevents bad trades
+- TO: System warns about bad trades but allows them
+
+**Trade-offs:**
+- ✅ **Pro:** User autonomy, diversification flexibility, learning from mistakes
+- ⚠️ **Con:** User can ignore warnings and lose money on backtested-poor strategies
+- ⚠️ **Con:** Contradicts original research principle (Utilities 0% success rate → blocked)
+
+### Deliverables
+
+#### 1. Policy Schema Changes (30 min)
+
+**Add strategy suitability ratings per sector to `data/policy.v1.json`:**
+
+```json
+{
+  "sectors": [
+    {
+      "name": "Healthcare",
+      "priority": 1,
+      "blocked": false,
+      "warning": false,
+      "allowed_strategies": ["Alt10", "Alt46", "Alt43", "Alt39", "Alt28"],
+      "strategy_suitability": {
+        "Alt10": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Healthcare +33.13% with Alt10 in backtests",
+          "require_acknowledgement": false
+        },
+        "Alt46": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Healthcare +32.16% with Alt46 (sector specialist)",
+          "require_acknowledgement": false
+        },
+        "Alt26": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Works better in Technology sector",
+          "require_acknowledgement": true
+        },
+        "Alt22": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Parabolic SAR underperforms in defensive sectors",
+          "require_acknowledgement": true
+        }
+      }
+    },
+    {
+      "name": "Utilities",
+      "priority": 6,
+      "blocked": false,
+      "warning": true,
+      "allowed_strategies": [],
+      "strategy_suitability": {
+        "Alt10": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Utilities -12.4% with Alt10 (mean-reverting sector)",
+          "require_acknowledgement": true
+        }
+      },
+      "utilities_warning": {
+        "title": "⚠️ Utilities Sector Warning",
+        "message": "We have ZERO successful backtests with Utilities. This sector is mean-reverting and unsuitable for trend-following. Only trade strong uptrends, downtrends, or obvious range-bound edges. Proceed with extreme caution.",
+        "acknowledgement_text": "I understand Utilities has 0% backtest success and will only trade clear directional moves."
+      }
+    }
+  ]
+}
+```
+
+**New Data Structures:**
+
+```go
+// internal/models/policy.go
+
+type Sector struct {
+    Name                string                        `json:"name"`
+    Priority            int                           `json:"priority"`
+    Blocked             bool                          `json:"blocked"`
+    Warning             bool                          `json:"warning"`
+    AllowedStrategies   []string                      `json:"allowed_strategies"`
+    StrategySuitability map[string]StrategySuitability `json:"strategy_suitability"`
+    UtilitiesWarning    *UtilitiesWarning             `json:"utilities_warning,omitempty"`
+    // ... existing fields
+}
+
+type StrategySuitability struct {
+    Rating                 string `json:"rating"` // "excellent", "marginal", "incompatible"
+    Color                  string `json:"color"`  // "green", "yellow", "red"
+    Rationale              string `json:"rationale"`
+    RequireAcknowledgement bool   `json:"require_acknowledgement"`
+}
+
+type UtilitiesWarning struct {
+    Title               string `json:"title"`
+    Message             string `json:"message"`
+    AcknowledgementText string `json:"acknowledgement_text"`
+}
+```
+
+#### 2. Strategy Selection UI Changes (60 min)
+
+**Location:** `internal/ui/screens/ticker_entry.go`
+
+**Current Behavior:**
+- Strategy dropdown is filtered by `sector.AllowedStrategies`
+- User only sees "approved" strategies
+
+**New Behavior:**
+- Strategy dropdown shows **ALL strategies** from `policy.Strategies`
+- Each strategy has a colored visual indicator (green/yellow/red box)
+- Hovering shows suitability rationale tooltip
+- Selecting yellow/red strategy shows acknowledgement checkbox
+
+**Mockup (text representation):**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Screen 3: Ticker Entry                                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│ Ticker Symbol: [UNH_____]                                  │
+│                                                             │
+│ Strategy:                                                   │
+│ ┌─────────────────────────────────────────────────────────┐│
+│ │ [✓ GREEN ] Alt10 - Profit Targets (3N/6N/9N)           ││
+│ │ [✓ GREEN ] Alt46 - Sector-Adaptive Parameters          ││
+│ │ [⚠ YELLOW] Alt26 - Fractional Pyramid                  ││
+│ │ [✗ RED   ] Alt22 - Parabolic SAR                       ││
+│ └─────────────────────────────────────────────────────────┘│
+│                                                             │
+│ Selected: Alt22 - Parabolic SAR                             │
+│                                                             │
+│ ⚠️ WARNING: This strategy is incompatible with Healthcare   │
+│ Rationale: Parabolic SAR underperforms in defensive sectors│
+│                                                             │
+│ [ ] I acknowledge this is not recommended and accept the   │
+│     risk of trading against backtest data.                 │
+│                                                             │
+│ [Back]  [Cancel]          [Continue (Disabled until ack)]  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Implementation Pseudo-Code:**
+
+```go
+// internal/ui/screens/ticker_entry.go
+
+func (s *TickerEntry) createStrategyDropdown() *widget.Select {
+    var strategyOptions []string
+
+    // Show ALL strategies (no filtering)
+    for stratID, strategy := range s.state.Policy.Strategies {
+        // Get suitability for current sector
+        suitability := s.getSuitabilityForSector(stratID, s.state.CurrentTrade.Sector)
+
+        // Format with color indicator
+        indicator := s.getColorIndicator(suitability.Color)
+        label := fmt.Sprintf("%s %s - %s", indicator, stratID, strategy.Label)
+
+        strategyOptions = append(strategyOptions, label)
+    }
+
+    dropdown := widget.NewSelect(strategyOptions, func(selected string) {
+        stratID := s.extractStrategyID(selected)
+        s.onStrategySelected(stratID)
+    })
+
+    return dropdown
+}
+
+func (s *TickerEntry) onStrategySelected(stratID string) {
+    suitability := s.getSuitabilityForSector(stratID, s.state.CurrentTrade.Sector)
+
+    if suitability.RequireAcknowledgement {
+        // Show warning banner and acknowledgement checkbox
+        s.showSuitabilityWarning(suitability)
+        s.continueBtn.Disable()
+        s.acknowledgementCheckbox.Show()
+    } else {
+        // Green strategy - no warning needed
+        s.hideWarningBanner()
+        s.continueBtn.Enable()
+        s.acknowledgementCheckbox.Hide()
+    }
+
+    s.state.CurrentTrade.Strategy = stratID
+    s.state.CurrentTrade.StrategySuitability = suitability.Rating
+}
+
+func (s *TickerEntry) getColorIndicator(color string) string {
+    switch color {
+    case "green":
+        return "[✓ GREEN ]"
+    case "yellow":
+        return "[⚠ YELLOW]"
+    case "red":
+        return "[✗ RED   ]"
+    default:
+        return "[?      ]"
+    }
+}
+```
+
+#### 3. Utilities Sector Warning Modal (30 min)
+
+**Trigger:** User selects Utilities in Sector Selection (Screen 1)
+
+**Modal Dialog:**
+
+```
+┌───────────────────────────────────────────────────────────┐
+│ ⚠️ Utilities Sector Warning                                │
+├───────────────────────────────────────────────────────────┤
+│                                                           │
+│ We have ZERO successful backtests with Utilities.        │
+│                                                           │
+│ This sector is mean-reverting and unsuitable for         │
+│ trend-following strategies. Historical data shows        │
+│ consistent losses across all tested strategies:          │
+│                                                           │
+│   • Alt10 (Profit Targets): -12.4%                       │
+│   • Alt46 (Sector-Adaptive): -6.2%                       │
+│   • Alt26 (Fractional Pyramid): -8.9%                    │
+│                                                           │
+│ ONLY TRADE if you identify:                              │
+│   ✓ Strong, sustained uptrend (above SMA200 for 3+ mo)   │
+│   ✓ Strong, sustained downtrend (below SMA200 for 3+ mo) │
+│   ✓ Obvious range-bound pattern at clear support/resist  │
+│                                                           │
+│ [ ] I understand Utilities has 0% backtest success       │
+│     and will only trade clear directional moves or       │
+│     range edges with tight risk management.              │
+│                                                           │
+│ [Go Back to Sector Selection]  [Continue Anyway]         │
+└───────────────────────────────────────────────────────────┘
+```
+
+**Implementation:**
+
+```go
+// internal/ui/screens/sector_selection.go
+
+func (s *SectorSelection) onSectorSelected(sector models.Sector) {
+    // Check if sector has Utilities warning
+    if sector.UtilitiesWarning != nil {
+        s.showUtilitiesWarningModal(sector)
+        return
+    }
+
+    // Normal flow
+    s.state.CurrentTrade.Sector = sector.Name
+    s.autoSave()
+}
+
+func (s *SectorSelection) showUtilitiesWarningModal(sector models.Sector) {
+    warning := sector.UtilitiesWarning
+
+    acknowledgement := widget.NewCheck(warning.AcknowledgementText, nil)
+
+    content := container.NewVBox(
+        widget.NewLabel(warning.Title),
+        widget.NewLabel(warning.Message),
+        acknowledgement,
+    )
+
+    dialog := dialog.NewCustomConfirm(
+        "Utilities Warning",
+        "Continue Anyway",
+        "Go Back",
+        content,
+        func(proceed bool) {
+            if proceed && acknowledgement.Checked {
+                s.state.CurrentTrade.Sector = sector.Name
+                s.state.CurrentTrade.UtilitiesAcknowledged = true
+                s.autoSave()
+                s.onNext()
+            } else if proceed && !acknowledgement.Checked {
+                dialog.ShowInformation("Required", "You must acknowledge the warning to proceed.", s.window)
+            }
+            // If user clicks "Go Back", dialog closes and nothing happens
+        },
+        s.window,
+    )
+
+    dialog.Show()
+}
+```
+
+#### 4. Logging & Telemetry (15 min)
+
+**Track warning overrides for future analysis:**
+
+```go
+// When user overrides a warning
+logging.Logger.Warn("strategy_warning_overridden",
+    "sector", sector,
+    "ticker", ticker,
+    "strategy", strategy,
+    "suitability_rating", "incompatible",
+    "user_acknowledged", true,
+)
+
+// When user trades Utilities
+logging.Logger.Warn("utilities_sector_trade",
+    "ticker", ticker,
+    "strategy", strategy,
+    "acknowledged", true,
+)
+```
+
+**Data Collection Purpose:**
+- If users consistently override warnings and succeed, reconsider backtest assumptions
+- If users ignore warnings and fail, strengthen warning language
+- Track if Utilities trades actually work (maybe some directional setups do work)
+
+### Testing Strategy
+
+#### Unit Tests
+
+```go
+// internal/models/policy_test.go
+
+func TestSector_StrategySuitability_AllRatings(t *testing.T) {
+    policy := loadTestPolicy()
+    healthcare := policy.Sectors[0]
+
+    // Test green strategy
+    assert.Equal(t, "excellent", healthcare.StrategySuitability["Alt10"].Rating)
+    assert.False(t, healthcare.StrategySuitability["Alt10"].RequireAcknowledgement)
+
+    // Test yellow strategy
+    assert.Equal(t, "marginal", healthcare.StrategySuitability["Alt26"].Rating)
+    assert.True(t, healthcare.StrategySuitability["Alt26"].RequireAcknowledgement)
+
+    // Test red strategy
+    assert.Equal(t, "incompatible", healthcare.StrategySuitability["Alt22"].Rating)
+    assert.True(t, healthcare.StrategySuitability["Alt22"].RequireAcknowledgement)
+}
+
+func TestSector_Utilities_HasWarning(t *testing.T) {
+    policy := loadTestPolicy()
+    utilities := findSector(policy, "Utilities")
+
+    assert.NotNil(t, utilities.UtilitiesWarning)
+    assert.Contains(t, utilities.UtilitiesWarning.Message, "ZERO successful backtests")
+}
+```
+
+#### Integration Tests
+
+```go
+// Test full workflow with warning override
+func TestWarningOverride_HealthcareWithIncompatibleStrategy(t *testing.T) {
+    // Setup
+    state := appcore.NewAppState()
+    state.LoadPolicy("data/policy.v1.json")
+
+    // Step 1: Select Healthcare (no warning)
+    state.CurrentTrade.Sector = "Healthcare"
+
+    // Step 2: Select incompatible strategy (Alt22 - Parabolic SAR)
+    state.CurrentTrade.Strategy = "Alt22"
+
+    // Step 3: Verify acknowledgement required
+    suitability := state.GetStrategySuitability("Alt22", "Healthcare")
+    assert.Equal(t, "incompatible", suitability.Rating)
+    assert.True(t, suitability.RequireAcknowledgement)
+
+    // Step 4: Acknowledge warning
+    state.CurrentTrade.WarningAcknowledged = true
+
+    // Step 5: Verify trade can proceed
+    assert.True(t, state.CanProceedToNextScreen())
+}
+
+func TestUtilitiesWarning_BlocksWithoutAcknowledgement(t *testing.T) {
+    // Setup
+    state := appcore.NewAppState()
+    state.LoadPolicy("data/policy.v1.json")
+
+    // Step 1: Select Utilities
+    state.CurrentTrade.Sector = "Utilities"
+
+    // Step 2: Verify warning exists
+    sector := state.GetCurrentSector()
+    assert.NotNil(t, sector.UtilitiesWarning)
+
+    // Step 3: Try to proceed without acknowledgement
+    state.CurrentTrade.UtilitiesAcknowledged = false
+    assert.False(t, state.CanProceedToNextScreen())
+
+    // Step 4: Acknowledge and proceed
+    state.CurrentTrade.UtilitiesAcknowledged = true
+    assert.True(t, state.CanProceedToNextScreen())
+}
+```
+
+#### Manual Testing Checklist
+
+**Test Scenario 1: Green Strategy (No Warning)**
+- [ ] Select Healthcare sector
+- [ ] Select Alt10 strategy (green)
+- [ ] Verify no warning banner appears
+- [ ] Verify Continue button is immediately enabled
+- [ ] Verify no acknowledgement checkbox visible
+
+**Test Scenario 2: Yellow Strategy (Soft Warning)**
+- [ ] Select Healthcare sector
+- [ ] Select Alt26 strategy (yellow - marginal)
+- [ ] Verify yellow warning banner appears with rationale
+- [ ] Verify acknowledgement checkbox appears
+- [ ] Verify Continue button disabled until checkbox checked
+- [ ] Check acknowledgement checkbox
+- [ ] Verify Continue button enables
+
+**Test Scenario 3: Red Strategy (Hard Warning)**
+- [ ] Select Healthcare sector
+- [ ] Select Alt22 strategy (red - incompatible)
+- [ ] Verify red warning banner appears with strong rationale
+- [ ] Verify acknowledgement checkbox appears with explicit text
+- [ ] Verify Continue button disabled until checkbox checked
+- [ ] Check acknowledgement checkbox
+- [ ] Verify Continue button enables
+- [ ] Verify log entry created for warning override
+
+**Test Scenario 4: Utilities Sector Warning**
+- [ ] Select Utilities sector
+- [ ] Verify modal dialog appears immediately
+- [ ] Verify dialog shows backtest failure statistics
+- [ ] Verify acknowledgement checkbox present
+- [ ] Try clicking "Continue Anyway" without checking box → verify blocked
+- [ ] Check acknowledgement box
+- [ ] Click "Continue Anyway"
+- [ ] Verify modal closes and workflow proceeds
+- [ ] Proceed to strategy selection
+- [ ] Verify ALL strategies show red (incompatible) for Utilities
+
+**Test Scenario 5: Go Back from Utilities Warning**
+- [ ] Select Utilities sector
+- [ ] Modal appears
+- [ ] Click "Go Back to Sector Selection"
+- [ ] Verify modal closes
+- [ ] Verify Sector Selection screen is still displayed
+- [ ] Verify no sector is selected in state
+
+### Gherkin Scenarios
+
+```gherkin
+Feature: Strategy Suitability Warning System
+
+  Background:
+    Given the application is running
+    And I have selected "Healthcare" sector
+    And I am on "Screen 3: Ticker Entry"
+
+  Scenario: Green strategy requires no acknowledgement
+    Given I have entered ticker "UNH"
+    When I select strategy "Alt10 - Profit Targets"
+    Then I should see a green indicator next to the strategy
+    And I should NOT see a warning banner
+    And the Continue button should be enabled
+    And I should NOT see an acknowledgement checkbox
+
+  Scenario: Yellow strategy requires acknowledgement
+    Given I have entered ticker "UNH"
+    When I select strategy "Alt26 - Fractional Pyramid"
+    Then I should see a yellow indicator next to the strategy
+    And I should see a warning banner with text "Works better in Technology sector"
+    And I should see an acknowledgement checkbox
+    And the Continue button should be disabled
+    When I check the acknowledgement checkbox
+    Then the Continue button should be enabled
+
+  Scenario: Red strategy requires strong acknowledgement
+    Given I have entered ticker "UNH"
+    When I select strategy "Alt22 - Parabolic SAR"
+    Then I should see a red indicator next to the strategy
+    And I should see a warning banner with text "incompatible with Healthcare"
+    And I should see an acknowledgement checkbox with text "I accept the risk of trading against backtest data"
+    And the Continue button should be disabled
+    When I check the acknowledgement checkbox
+    Then the Continue button should be enabled
+    And a warning log entry should be created
+
+Feature: Utilities Sector Warning
+
+  Scenario: Utilities sector shows warning modal
+    Given I am on "Screen 1: Sector Selection"
+    When I select the "Utilities" sector
+    Then I should see a modal dialog with title "⚠️ Utilities Sector Warning"
+    And the modal should display "ZERO successful backtests"
+    And the modal should list backtest failure percentages
+    And I should see buttons "Go Back to Sector Selection" and "Continue Anyway"
+
+  Scenario: Cannot proceed without acknowledging Utilities warning
+    Given I have selected the "Utilities" sector
+    And the Utilities warning modal is displayed
+    When I click "Continue Anyway" without checking the acknowledgement box
+    Then I should see an error message "You must acknowledge the warning to proceed"
+    And the modal should remain open
+
+  Scenario: Acknowledging Utilities warning allows trading
+    Given I have selected the "Utilities" sector
+    And the Utilities warning modal is displayed
+    When I check the acknowledgement checkbox
+    And I click "Continue Anyway"
+    Then the modal should close
+    And I should be navigated to "Screen 2: Screener Launch"
+    And my sector selection should be "Utilities"
+    And a telemetry log entry should record "utilities_sector_trade"
+
+  Scenario: All strategies show red for Utilities
+    Given I have selected "Utilities" sector
+    And I have acknowledged the Utilities warning
+    And I am on "Screen 3: Ticker Entry"
+    When I open the strategy dropdown
+    Then every strategy should display a red indicator
+    And each strategy should require acknowledgement
+```
+
+### Exit Criteria
+
+**Deliverables:**
+- [x] Policy schema updated with `strategy_suitability` and `utilities_warning` fields
+- [x] All sectors have suitability ratings for all strategies
+- [x] Strategy selection UI shows color-coded indicators
+- [x] Acknowledgement checkboxes appear for yellow/red strategies
+- [x] Utilities modal dialog appears and blocks without acknowledgement
+- [x] Telemetry logs track warning overrides
+
+**Verification Commands:**
+```bash
+# Verify policy schema
+cat data/policy.v1.json | jq '.sectors[0].strategy_suitability'
+
+# Run unit tests
+go test ./internal/models/ -v -run TestStrategySuitability
+
+# Run integration tests
+go test -tags=integration ./internal/... -run TestWarningOverride
+
+# Manual test
+go run . --debug
+# Select Healthcare → UNH → Alt22 (red) → verify acknowledgement required
+# Select Utilities → verify modal appears → acknowledge → verify proceeds
+```
+
+**Test Pass Rate:** 100% of Gherkin scenarios pass
+
+**Sign-off:** Product Owner approves shift from prescriptive to permissive architecture
+
+### Risks & Open Questions
+
+**Risk 1: Users ignore warnings and lose money**
+- **Mitigation:** Make warning text explicit and scary
+- **Mitigation:** Track override outcomes and strengthen warnings if users fail
+- **Mitigation:** Consider requiring double-acknowledgement for red strategies
+
+**Risk 2: Color-blind accessibility**
+- **Mitigation:** Use icons in addition to colors (✓ ⚠ ✗)
+- **Mitigation:** Test with color-blindness simulator
+
+**Risk 3: Warning fatigue**
+- **Mitigation:** Only show warnings for yellow/red (not green)
+- **Mitigation:** Persist acknowledgements per session (don't repeat for same strategy)
+
+**Open Question 1:** Should utilities acknowledgement persist across session?
+- **Option A:** Require acknowledgement every time user selects Utilities
+- **Option B:** Show modal once per app session
+- **Recommendation:** Option A (always show) - the warning is too important
+
+**Open Question 2:** Should we track outcome of warning overrides?
+- **Option A:** Just log the override, no follow-up
+- **Option B:** Track P&L of warned trades vs. non-warned trades
+- **Recommendation:** Option B - data-driven approach to refining warnings
+
+**Open Question 3:** What about other "blocked" sectors (Energy)?
+- Energy currently `"warning": true` but not hard-blocked
+- Should Energy get similar treatment as Utilities?
+- **Recommendation:** Review Energy backtest data and apply same color-coding system
+
+### Documentation Updates Required
+
+- [ ] Update `CLAUDE.md` line 19: Remove "Relaxing sector guardrails" from non-goals
+- [ ] Update `CLAUDE.md` Rule #2: Clarify policy drives warnings, not hard blocks
+- [ ] Update `README.md`: Document warning system for users
+- [ ] Update `architects-intent.md`: Note architectural shift rationale
+- [ ] Create `docs/warning-system.md`: Comprehensive guide to suitability ratings
+
+### Future Enhancements (Post-Phase 6)
+
+**Dynamic Suitability Updates:**
+- Re-run backtests monthly and auto-update suitability ratings
+- If user overrides warning and succeeds 3+ times, downgrade from red → yellow
+
+**Personalized Warnings:**
+- Track user's historical success with each strategy/sector combo
+- If user consistently profits with "incompatible" strategy, reduce warning severity
+
+**Community Warnings:**
+- Aggregate anonymous data from all TF-Engine users
+- "87% of users who traded Alt22 in Healthcare lost money"
+
+---
+
+**Document Version:** 1.1.0
+**Last Updated:** 2025-11-04
 **Owner:** Product Lead
 **Reviewers:** Engineering Lead, QA Lead, UX Designer

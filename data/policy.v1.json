@@ -43,6 +43,74 @@
         "Alt39",
         "Alt28"
       ],
+      "strategy_suitability": {
+        "Alt10": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Healthcare +33.13% with Alt10 in backtests (profit targets work excellently)",
+          "require_acknowledgement": false
+        },
+        "Alt46": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Healthcare +32.16% with Alt46 (sector-adaptive specialist)",
+          "require_acknowledgement": false
+        },
+        "Alt43": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Record healthcare ETF performance with volatility-adaptive targets",
+          "require_acknowledgement": false
+        },
+        "Alt39": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Great on healthcare stocks with age-based targets",
+          "require_acknowledgement": false
+        },
+        "Alt28": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "ADX filter works well on trending healthcare names",
+          "require_acknowledgement": false
+        },
+        "Alt26": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Fractional pyramid works better in Technology and SPY",
+          "require_acknowledgement": true
+        },
+        "Alt22": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Parabolic SAR underperforms in defensive sectors (healthcare is defensive)",
+          "require_acknowledgement": true
+        },
+        "Alt45": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Dual-momentum confirmation works but not optimal for healthcare",
+          "require_acknowledgement": true
+        },
+        "Alt47": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Momentum-scaled sizing has ultra-low drawdowns on stocks but not a healthcare specialist",
+          "require_acknowledgement": true
+        },
+        "Baseline": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Reliable Turtle Core benchmark works across most sectors",
+          "require_acknowledgement": false
+        },
+        "Alt9": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Time exit (40 bars) works on growth stocks, not defensive healthcare",
+          "require_acknowledgement": true
+        }
+      },
       "screener_urls": {
         "universe": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,sh_price_o50,fa_epsyoy_pos,fa_sales5years_pos,fa_roe_pos,ta_sma200_pa&ft=4",
         "pullback": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_sma50_pb,ta_rsi_os40&ft=4",
@@ -64,6 +132,74 @@
         "Alt47",
         "Alt10"
       ],
+      "strategy_suitability": {
+        "Alt26": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Best SPY result; fractional pyramid excels in momentum tech stocks",
+          "require_acknowledgement": false
+        },
+        "Alt22": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Parabolic SAR loves QQQ and tech momentum breakouts",
+          "require_acknowledgement": false
+        },
+        "Alt10": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Profit targets work universally including technology",
+          "require_acknowledgement": false
+        },
+        "Alt47": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Momentum-scaled sizing has ultra-low drawdowns on MSFT and tech stocks",
+          "require_acknowledgement": false
+        },
+        "Alt45": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Dual-momentum confirmation strong on QQQ and tech stocks",
+          "require_acknowledgement": false
+        },
+        "Alt46": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Sector-adaptive works well on MSFT and GOOGL",
+          "require_acknowledgement": false
+        },
+        "Baseline": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Turtle Core reliable on MSFT and tech names",
+          "require_acknowledgement": false
+        },
+        "Alt43": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Volatility-adaptive better suited for healthcare than technology",
+          "require_acknowledgement": true
+        },
+        "Alt39": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Age-based targets excel on QQQ",
+          "require_acknowledgement": false
+        },
+        "Alt28": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "ADX filter works but over-filters choppy tech moves",
+          "require_acknowledgement": true
+        },
+        "Alt9": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Time exit catastrophic on SPY but okay on tech growth stocks",
+          "require_acknowledgement": true
+        }
+      },
       "screener_urls": {
         "universe": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_largeover,sh_avgvol_o1000,sh_price_o100,fa_epsyoy_pos,fa_epsyoy1_pos,fa_roe_o15,ta_sma200_pa&ft=4",
         "pullback": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pa,ta_sma50_pb,ta_rsi_os40&ft=4",
@@ -82,7 +218,57 @@
         "Alt10",
         "Alt26",
         "Alt9"
-      ]
+      ],
+      "strategy_suitability": {
+        "Alt10": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Profit targets work excellently on explosive Consumer Discretionary names",
+          "require_acknowledgement": false
+        },
+        "Alt26": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Fractional pyramid strong on Consumer Discretionary (AMZN momentum)",
+          "require_acknowledgement": false
+        },
+        "Alt9": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Time exit works on growth stocks like AMZN (but catastrophic on SPY)",
+          "require_acknowledgement": false
+        },
+        "Baseline": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Turtle Core reliable on AMZN and consumer names",
+          "require_acknowledgement": false
+        },
+        "Alt22": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Parabolic SAR better suited for pure technology momentum",
+          "require_acknowledgement": true
+        },
+        "Alt47": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Momentum-scaled sizing works on stocks but not optimal for consumer discretionary",
+          "require_acknowledgement": true
+        },
+        "Alt43": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Volatility-adaptive targets better for healthcare/defensive sectors",
+          "require_acknowledgement": true
+        },
+        "Alt46": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Sector-adaptive primarily optimized for healthcare",
+          "require_acknowledgement": true
+        }
+      }
     },
     {
       "name": "Industrials",
@@ -95,7 +281,57 @@
         "Alt10",
         "Alt26",
         "Alt28"
-      ]
+      ],
+      "strategy_suitability": {
+        "Alt10": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "CAT shines with profit targets; strong performance",
+          "require_acknowledgement": false
+        },
+        "Alt26": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Fractional pyramid strong on industrial names like CAT",
+          "require_acknowledgement": false
+        },
+        "Alt28": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "ADX filter works well on trending industrial stocks",
+          "require_acknowledgement": false
+        },
+        "Alt47": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Momentum-scaled sizing excellent on CAT with ultra-low drawdowns",
+          "require_acknowledgement": false
+        },
+        "Alt45": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Dual-momentum confirmation strong on CAT",
+          "require_acknowledgement": false
+        },
+        "Baseline": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Turtle Core reliable on CAT and industrial names",
+          "require_acknowledgement": false
+        },
+        "Alt9": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Time exit works on CAT but better suited for pure growth stocks",
+          "require_acknowledgement": true
+        },
+        "Alt43": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Volatility-adaptive better for healthcare/defensive sectors",
+          "require_acknowledgement": true
+        }
+      }
     },
     {
       "name": "Communication Services",
@@ -108,7 +344,57 @@
         "Alt22",
         "Alt26",
         "Alt10"
-      ]
+      ],
+      "strategy_suitability": {
+        "Alt22": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Parabolic SAR loves GOOGL and communication momentum",
+          "require_acknowledgement": false
+        },
+        "Alt26": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Fractional pyramid strong on GOOGL",
+          "require_acknowledgement": false
+        },
+        "Alt10": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Profit targets work universally including communication services",
+          "require_acknowledgement": false
+        },
+        "Alt45": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Dual-momentum confirmation strong on GOOGL",
+          "require_acknowledgement": false
+        },
+        "Alt46": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Sector-adaptive works well on GOOGL",
+          "require_acknowledgement": false
+        },
+        "Baseline": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Turtle Core reliable across sectors",
+          "require_acknowledgement": false
+        },
+        "Alt47": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Momentum-scaled sizing better for pure tech stocks",
+          "require_acknowledgement": true
+        },
+        "Alt43": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Volatility-adaptive optimized for healthcare not communication",
+          "require_acknowledgement": true
+        }
+      }
     },
     {
       "name": "Consumer Defensive",
@@ -121,7 +407,57 @@
         "Baseline",
         "Alt26",
         "Alt10"
-      ]
+      ],
+      "strategy_suitability": {
+        "Baseline": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Turtle Core excels on WMT and consumer defensive names",
+          "require_acknowledgement": false
+        },
+        "Alt26": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Fractional pyramid strong on WMT trends",
+          "require_acknowledgement": false
+        },
+        "Alt10": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Profit targets work universally including consumer defensive",
+          "require_acknowledgement": false
+        },
+        "Alt47": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Momentum-scaled sizing has ultra-low drawdowns on WMT",
+          "require_acknowledgement": false
+        },
+        "Alt45": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Dual-momentum confirmation strong on WMT",
+          "require_acknowledgement": false
+        },
+        "Alt43": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Volatility-adaptive works on WMT (defensive stock)",
+          "require_acknowledgement": false
+        },
+        "Alt9": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Time exit works on WMT but better for growth stocks",
+          "require_acknowledgement": true
+        },
+        "Alt22": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Parabolic SAR underperforms in defensive sectors (needs momentum)",
+          "require_acknowledgement": true
+        }
+      }
     },
     {
       "name": "Financials",
@@ -134,7 +470,51 @@
         "Alt10",
         "Alt26",
         "Alt28"
-      ]
+      ],
+      "strategy_suitability": {
+        "Alt10": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Profit targets work well on financial sector trends",
+          "require_acknowledgement": false
+        },
+        "Alt26": {
+          "rating": "excellent",
+          "color": "green",
+          "rationale": "Fractional pyramid strong on financials",
+          "require_acknowledgement": false
+        },
+        "Alt28": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "ADX filter works on trending financial names",
+          "require_acknowledgement": false
+        },
+        "Baseline": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Turtle Core reliable across sectors",
+          "require_acknowledgement": false
+        },
+        "Alt47": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Momentum-scaled sizing not optimized for financials",
+          "require_acknowledgement": true
+        },
+        "Alt22": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Parabolic SAR works better in pure momentum sectors",
+          "require_acknowledgement": true
+        },
+        "Alt43": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Volatility-adaptive better for healthcare/defensive sectors",
+          "require_acknowledgement": true
+        }
+      }
     },
     {
       "name": "Real Estate",
@@ -146,7 +526,51 @@
       "allowed_strategies": [
         "Alt10",
         "Alt26"
-      ]
+      ],
+      "strategy_suitability": {
+        "Alt10": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "PLD works with profit targets but XLRE fails—trade individual stocks only",
+          "require_acknowledgement": true
+        },
+        "Alt26": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Fractional pyramid works on PLD but sector has mixed results",
+          "require_acknowledgement": true
+        },
+        "Alt47": {
+          "rating": "good",
+          "color": "green",
+          "rationale": "Momentum-scaled sizing works on PLD with low drawdowns",
+          "require_acknowledgement": false
+        },
+        "Baseline": {
+          "rating": "marginal",
+          "color": "yellow",
+          "rationale": "Turtle Core has mixed results on real estate",
+          "require_acknowledgement": true
+        },
+        "Alt22": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Parabolic SAR underperforms in slow-moving real estate sector",
+          "require_acknowledgement": true
+        },
+        "Alt43": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Volatility-adaptive not suitable for choppy real estate patterns",
+          "require_acknowledgement": true
+        },
+        "Alt46": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Sector-adaptive optimized for healthcare, not real estate",
+          "require_acknowledgement": true
+        }
+      }
     },
     {
       "name": "Energy",
@@ -155,7 +579,69 @@
       "warning": true,
       "heat_cap_percent": 0.0,
       "notes": "Mean-reverting; trend-following weak. Prefer no trades until a mean-reversion system exists.",
-      "allowed_strategies": []
+      "allowed_strategies": [],
+      "strategy_suitability": {
+        "Alt10": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Energy is mean-reverting; profit targets fail on whipsaws",
+          "require_acknowledgement": true
+        },
+        "Alt26": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Fractional pyramid fails in mean-reverting energy sector",
+          "require_acknowledgement": true
+        },
+        "Baseline": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Turtle Core trend-following weak in choppy energy sector",
+          "require_acknowledgement": true
+        },
+        "Alt22": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Parabolic SAR generates excessive whipsaws in energy",
+          "require_acknowledgement": true
+        },
+        "Alt28": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "ADX filter cannot fix fundamental mean-reversion problem",
+          "require_acknowledgement": true
+        },
+        "Alt43": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Volatility-adaptive targets fail on energy whipsaws",
+          "require_acknowledgement": true
+        },
+        "Alt46": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Sector-adaptive cannot adapt to mean-reverting behavior",
+          "require_acknowledgement": true
+        },
+        "Alt47": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Momentum-scaled sizing cannot overcome energy sector's mean-reversion",
+          "require_acknowledgement": true
+        },
+        "Alt45": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Dual-momentum confirmation weak in non-trending energy sector",
+          "require_acknowledgement": true
+        },
+        "Alt9": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Time exit fails in mean-reverting energy environment",
+          "require_acknowledgement": true
+        }
+      }
     },
     {
       "name": "Utilities",
@@ -314,6 +800,28 @@
   "finviz_helpers": {
     "etf_temperature": "https://finviz.com/screener.ashx?v=211&f=ta_sma200_pa,ticker_xlv_xly_xlk_xli_xlf_qqq_spy&ft=4",
     "blacklist": "https://finviz.com/screener.ashx?v=211&f=sec_energy_utilities&ft=4"
+  },
+  "screener_sorting": {
+    "universe": {
+      "sort_by": "marketcap",
+      "direction": "desc",
+      "rationale": "Largest, most liquid, options-friendly names first"
+    },
+    "pullback": {
+      "sort_by": "change",
+      "direction": "asc",
+      "rationale": "Biggest daily pullbacks first (most oversold opportunities)"
+    },
+    "breakout": {
+      "sort_by": "relativevolume",
+      "direction": "desc",
+      "rationale": "Strongest volume breakouts first (conviction moves)"
+    },
+    "golden_cross": {
+      "sort_by": "change",
+      "direction": "desc",
+      "rationale": "Strongest daily momentum first (fresh golden crosses with power)"
+    }
   },
   "checklist": {
     "required": [

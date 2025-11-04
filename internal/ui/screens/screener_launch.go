@@ -219,6 +219,20 @@ func (s *ScreenerLaunch) createScreenerCard(key, title, description, frequency, 
 	// Purpose
 	purposeLabel := widget.NewLabel("Purpose: " + purpose)
 
+	// Sort info
+	sortLabel := widget.NewLabel("")
+	if s.state.Policy != nil && s.state.Policy.ScreenerSorting != nil {
+		if sortConfig, exists := s.state.Policy.ScreenerSorting[key]; exists {
+			sortDirection := "ascending"
+			if sortConfig.Direction == "desc" {
+				sortDirection = "descending"
+			}
+			sortLabel.SetText(fmt.Sprintf("📊 Sorted by: %s (%s) - %s",
+				sortConfig.SortBy, sortDirection, sortConfig.Rationale))
+			sortLabel.TextStyle = fyne.TextStyle{Italic: true}
+		}
+	}
+
 	// Last run timestamp
 	lastRunLabel := widget.NewLabel("")
 	if lastRun, exists := s.lastLaunch[key]; exists {
@@ -244,6 +258,7 @@ func (s *ScreenerLaunch) createScreenerCard(key, title, description, frequency, 
 		descLabel,
 		freqLabel,
 		purposeLabel,
+		sortLabel,
 		lastRunLabel,
 		launchBtn,
 	)
@@ -285,8 +300,21 @@ func (s *ScreenerLaunch) launchURL(key, rawURL string) {
 		s.showError(fmt.Sprintf("Warning: URL missing v=211 chart view parameter"))
 	}
 
+	// Add screener-specific sorting if configured
+	if s.state.Policy != nil && s.state.Policy.ScreenerSorting != nil {
+		if sortConfig, exists := s.state.Policy.ScreenerSorting[key]; exists {
+			sortParam := sortConfig.SortBy
+			// Prepend minus for descending sort
+			if sortConfig.Direction == "desc" {
+				sortParam = "-" + sortParam
+			}
+			query.Set("o", sortParam)
+			parsedURL.RawQuery = query.Encode()
+		}
+	}
+
 	// Open URL in default browser
-	urlObj, err := url.Parse(rawURL)
+	urlObj, err := url.Parse(parsedURL.String())
 	if err != nil {
 		s.showError(fmt.Sprintf("Failed to parse URL: %v", err))
 		return
