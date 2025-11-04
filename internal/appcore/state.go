@@ -1,6 +1,7 @@
 package appcore
 
 import (
+	"tf-engine/internal/config"
 	"tf-engine/internal/models"
 	"time"
 )
@@ -8,6 +9,7 @@ import (
 // AppState holds the global application state
 type AppState struct {
 	Policy         *models.Policy
+	FeatureFlags   *config.FeatureFlags
 	Settings       *models.Settings
 	CurrentTrade   *models.Trade
 	CurrentScreen  string

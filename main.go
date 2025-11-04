@@ -73,12 +73,19 @@ func main() {
 
 	// Load feature flags
 	logging.InfoLogger.Println("Loading feature flags...")
-	if _, err := config.LoadFeatureFlags("feature.flags.json"); err != nil {
+	featureFlags, err := config.LoadFeatureFlags("feature.flags.json")
+	if err != nil {
 		logging.ErrorLogger.Printf("Failed to load feature flags: %v", err)
 		logging.InfoLogger.Println("Continuing with default feature flags (all Phase 2 features OFF)")
+		// Create default feature flags (all disabled)
+		featureFlags = &config.FeatureFlags{
+			Version: "1.0.0",
+			Flags:   make(map[string]config.FeatureFlag),
+		}
 	} else {
 		logging.InfoLogger.Println("Feature flags loaded successfully")
 	}
+	state.FeatureFlags = featureFlags
 
 	// Load existing trades
 	logging.InfoLogger.Println("Loading existing trades...")

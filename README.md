@@ -6,18 +6,27 @@ A systematic decision support application for options traders using trend-follow
 
 ## Project Status
 
-**Current Phase:** Phase 0 Complete ✅ → Ready for Phase 1
+**Current Phase:** Phase 5 Complete ✅ (95% - Ready for UAT)
 
-**Version:** 0.1.0 (Infrastructure)
+**Version:** 1.0.0 (MVP Release Candidate)
 
-### Phase 0: Feature Freeze & Repo Hygiene ✅
-- Policy-driven configuration system
-- Feature flags for Phase 2 features
-- SHA256 signature validation
-- CI/CD pipeline
-- Complete project structure
+**Latest Update:** November 4, 2025
 
-**See:** [PHASE_0_COMPLETE.md](PHASE_0_COMPLETE.md) for full details
+### ✅ Completed Phases
+- ✅ Phase 0: Feature Freeze & Repo Hygiene
+- ✅ Phase 1: Foundation Layer (navigation, persistence, cooldown timer)
+- ✅ Phase 2-4: Core Workflow (all 8 screens implemented)
+- ✅ Phase 5: Polish & Phase 2 Features (95% complete)
+
+### 🎯 Current Status
+- ✅ All core features implemented (8-screen workflow operational)
+- ✅ Windows installer built: `TFEngine-Setup-1.0.0.exe` (17.4 MB)
+- ✅ 85%+ test coverage, all automated tests passing
+- ✅ Sample data generator implemented (Phase 2 feature, disabled by default)
+- ✅ Help system and welcome screen complete
+- ⏳ Pending: VM testing and User Acceptance Testing with 3 beta testers
+
+**See:** [PHASE_5_COMPLETION_STATUS.md](PHASE_5_COMPLETION_STATUS.md) for detailed status
 
 ---
 

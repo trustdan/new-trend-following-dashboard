@@ -1,23 +1,32 @@
 package ui
 
 import (
+	"fmt"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
+
 	"tf-engine/internal/appcore"
+	"tf-engine/internal/storage"
+	"tf-engine/internal/testing/generators"
+	"tf-engine/internal/ui/help"
 )
 
 // Dashboard represents the main dashboard screen
 type Dashboard struct {
-	state  *appcore.AppState
-	window fyne.Window
+	state     *appcore.AppState
+	window    fyne.Window
+	navigator *Navigator
 }
 
 // NewDashboard creates a new dashboard
-func NewDashboard(state *appcore.AppState, window fyne.Window) *Dashboard {
+func NewDashboard(state *appcore.AppState, window fyne.Window, navigator *Navigator) *Dashboard {
 	return &Dashboard{
-		state:  state,
-		window: window,
+		state:     state,
+		window:    window,
+		navigator: navigator,
 	}
 }
 
@@ -27,7 +36,9 @@ func (d *Dashboard) Render() fyne.CanvasObject {
 	title.TextStyle = fyne.TextStyle{Bold: true}
 
 	startButton := widget.NewButton("Start New Trade", func() {
-		d.navigateToSectorSelection()
+		if d.navigator != nil {
+			d.navigator.NavigateToScreen(0) // Navigate to Sector Selection
+		}
 	})
 
 	resumeButton := widget.NewButton("Resume Session", func() {
@@ -35,11 +46,41 @@ func (d *Dashboard) Render() fyne.CanvasObject {
 	})
 
 	calendarButton := widget.NewButton("View Calendar", func() {
-		// TODO: Show calendar view
+		if d.navigator != nil {
+			d.navigator.JumpToCalendar()
+		}
 	})
 
+	// Trade Management button (Phase 2 feature)
+	manageTradesButton := widget.NewButton("Manage Trades", func() {
+		if d.navigator != nil {
+			d.navigator.JumpToTradeManagement()
+		}
+	})
+
+	// Check if Trade Management feature is enabled
+	manageTradesEnabled := d.state.FeatureFlags != nil && d.state.FeatureFlags.IsEnabled("trade_management")
+	if !manageTradesEnabled {
+		manageTradesButton.Disable()
+	}
+
+	// Sample Data Generator button (Phase 2 feature)
+	sampleDataButton := widget.NewButton("Generate Sample Data", func() {
+		d.generateSampleData()
+	})
+
+	// Check if Sample Data Generator feature is enabled
+	sampleDataEnabled := d.state.FeatureFlags != nil && d.state.FeatureFlags.IsEnabled("sample_data_generator")
+	if !sampleDataEnabled {
+		sampleDataButton.Disable()
+	}
+
+	// Phase 2 features label
+	phase2Label := widget.NewLabel("Phase 2 Features (disabled by default):")
+	phase2Label.TextStyle = fyne.TextStyle{Italic: true}
+
 	helpButton := widget.NewButton("Help", func() {
-		// TODO: Show help dialog
+		help.ShowHelpDialog("welcome", d.window)
 	})
 
 	// Account info
@@ -56,6 +97,10 @@ func (d *Dashboard) Render() fyne.CanvasObject {
 		calendarButton,
 		helpButton,
 		widget.NewSeparator(),
+		phase2Label,
+		manageTradesButton,
+		sampleDataButton,
+		widget.NewSeparator(),
 		widget.NewLabel("Account Settings"),
 		accountInfo,
 		widget.NewSeparator(),
@@ -66,7 +111,50 @@ func (d *Dashboard) Render() fyne.CanvasObject {
 	return container.NewPadded(content)
 }
 
-func (d *Dashboard) navigateToSectorSelection() {
-	// TODO: Navigate to sector selection screen
-	// Will be implemented with proper navigation
+// generateSampleData generates sample trades and saves them
+func (d *Dashboard) generateSampleData() {
+	// Confirm with user
+	dialog.ShowConfirm(
+		"Generate Sample Data",
+		"This will create 10 sample trades for testing. Continue?",
+		func(confirmed bool) {
+			if !confirmed {
+				return
+			}
+
+			// Generate 10 sample trades
+			sampleTrades := generators.GenerateSampleTrades(10)
+
+			// Save each trade
+			for _, trade := range sampleTrades {
+				if err := storage.SaveCompletedTrade(&trade); err != nil {
+					dialog.ShowError(
+						fmt.Errorf("Failed to save sample trade: %v", err),
+						d.window,
+					)
+					return
+				}
+			}
+
+			// Reload trades into state
+			allTrades, err := storage.LoadAllTrades()
+			if err != nil {
+				dialog.ShowError(
+					fmt.Errorf("Failed to reload trades: %v", err),
+					d.window,
+				)
+				return
+			}
+			d.state.AllTrades = allTrades
+
+			// Show success message
+			dialog.ShowInformation(
+				"Success",
+				fmt.Sprintf("Generated %d sample trades successfully!\n\nClick 'View Calendar' to see them.", len(sampleTrades)),
+				d.window,
+			)
+		},
+		d.window,
+	)
 }
+

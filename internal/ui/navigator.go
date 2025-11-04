@@ -9,6 +9,7 @@ import (
 
 	"tf-engine/internal/appcore"
 	"tf-engine/internal/storage"
+	"tf-engine/internal/ui/help"
 	"tf-engine/internal/ui/screens"
 )
 
@@ -28,7 +29,7 @@ type Navigator struct {
 	window       fyne.Window
 }
 
-// NewNavigator creates a new navigator with all 8 screens
+// NewNavigator creates a new navigator with all 9 screens (8 workflow + 1 management)
 func NewNavigator(state *appcore.AppState, window fyne.Window) *Navigator {
 	nav := &Navigator{
 		currentIndex: -1, // -1 = dashboard
@@ -37,7 +38,7 @@ func NewNavigator(state *appcore.AppState, window fyne.Window) *Navigator {
 		window:       window,
 	}
 
-	// Initialize all screens
+	// Initialize all screens (8 workflow screens + trade management)
 	nav.screens = []Screen{
 		screens.NewSectorSelection(state, window),
 		screens.NewScreenerLaunch(state, window),
@@ -47,6 +48,7 @@ func NewNavigator(state *appcore.AppState, window fyne.Window) *Navigator {
 		screens.NewHeatCheck(state, window),
 		screens.NewTradeEntry(state, window),
 		screens.NewCalendar(state, window),
+		screens.NewTradeManagement(state, window, state.FeatureFlags), // Screen 9: Phase 2 feature
 	}
 
 	// Set navigation callbacks on screens that support them
@@ -158,14 +160,30 @@ func (n *Navigator) JumpToCalendar() {
 	n.window.SetContent(n.screens[7].Render())
 }
 
+// JumpToTradeManagement navigates directly to trade management screen
+func (n *Navigator) JumpToTradeManagement() {
+	// Auto-save current progress
+	n.AutoSave()
+
+	// Remember where we came from
+	n.history = append(n.history, n.currentIndex)
+
+	// Jump to trade management (screen index 8)
+	n.currentIndex = 8
+	n.state.CurrentScreen = "trade_management"
+
+	// Render trade management
+	n.window.SetContent(n.screens[8].Render())
+}
+
 // NavigateToDashboard returns to the main dashboard
 func (n *Navigator) NavigateToDashboard() {
 	n.currentIndex = -1
 	n.history = []int{}
 	n.state.CurrentScreen = "dashboard"
 
-	// Render dashboard
-	dashboard := NewDashboard(n.state, n.window)
+	// Render dashboard (pass navigator so dashboard can navigate to screens)
+	dashboard := NewDashboard(n.state, n.window, n)
 	n.window.SetContent(dashboard.Render())
 }
 
@@ -237,4 +255,10 @@ func (n *Navigator) GetHistoryDepth() int {
 // ClearHistory resets the navigation history
 func (n *Navigator) ClearHistory() {
 	n.history = []int{}
+}
+
+// ShowHelp displays context-sensitive help for the current screen
+func (n *Navigator) ShowHelp() {
+	screenName := n.GetCurrentScreenName()
+	help.ShowHelpDialog(screenName, n.window)
 }

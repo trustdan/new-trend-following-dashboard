@@ -2,6 +2,7 @@ package widgets
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -13,6 +14,7 @@ import (
 type CooldownTimer struct {
 	widget.BaseWidget
 
+	mu              sync.RWMutex // Protects all fields below
 	duration        time.Duration
 	startTime       time.Time
 	ticker          *time.Ticker
@@ -79,8 +81,18 @@ func (t *CooldownTimer) start() {
 
 // update refreshes the timer display and checks for completion
 func (t *CooldownTimer) update() {
-	elapsed := time.Since(t.startTime)
-	remaining := t.duration - elapsed
+	t.mu.RLock()
+	startTime := t.startTime
+	duration := t.duration
+	stopped := t.stopped
+	t.mu.RUnlock()
+
+	if stopped {
+		return
+	}
+
+	elapsed := time.Since(startTime)
+	remaining := duration - elapsed
 
 	if remaining <= 0 {
 		t.complete()
@@ -93,7 +105,7 @@ func (t *CooldownTimer) update() {
 	t.label.SetText(fmt.Sprintf("Cooldown: %d:%02d remaining", minutes, seconds))
 
 	// Update progress bar (inverse - counts down)
-	progress := float64(elapsed) / float64(t.duration)
+	progress := float64(elapsed) / float64(duration)
 	t.progressBar.SetValue(progress)
 
 	t.Refresh()
@@ -101,12 +113,25 @@ func (t *CooldownTimer) update() {
 
 // complete is called when the timer reaches zero
 func (t *CooldownTimer) complete() {
-	t.ticker.Stop()
+	t.mu.Lock()
+	if t.stopped {
+		t.mu.Unlock()
+		return
+	}
+	t.stopped = true
+	t.frozenRemaining = 0
+	onComplete := t.onComplete
+	ticker := t.ticker
+	t.mu.Unlock()
+
+	if ticker != nil {
+		ticker.Stop()
+	}
 	t.label.SetText("✓ Ready to continue")
 	t.progressBar.SetValue(1.0)
 
-	if t.onComplete != nil {
-		t.onComplete()
+	if onComplete != nil {
+		onComplete()
 	}
 
 	t.Refresh()
@@ -114,27 +139,42 @@ func (t *CooldownTimer) complete() {
 
 // Stop stops the timer and freezes the remaining time
 func (t *CooldownTimer) Stop() {
-	if !t.stopped {
-		// Calculate remaining before setting stopped flag
-		elapsed := time.Since(t.startTime)
-		remaining := t.duration - elapsed
-		if remaining < 0 {
-			remaining = 0
-		}
+	t.mu.Lock()
+	if t.stopped {
+		t.mu.Unlock()
+		return
+	}
 
-		t.stopped = true
-		t.frozenRemaining = remaining
+	// Calculate remaining before setting stopped flag
+	elapsed := time.Since(t.startTime)
+	remaining := t.duration - elapsed
+	if remaining < 0 {
+		remaining = 0
+	}
 
+	t.stopped = true
+	t.frozenRemaining = remaining
+	ticker := t.ticker
+	done := t.done
+	t.mu.Unlock()
+
+	// Stop ticker and signal goroutine (outside lock)
+	if ticker != nil {
+		ticker.Stop()
+	}
+	if done != nil {
 		select {
-		case t.done <- true:
+		case done <- true:
 		default:
 		}
-		t.ticker.Stop()
 	}
 }
 
 // GetRemaining returns the remaining duration
 func (t *CooldownTimer) GetRemaining() time.Duration {
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+
 	if t.stopped {
 		return t.frozenRemaining
 	}
@@ -155,11 +195,15 @@ func (t *CooldownTimer) IsComplete() bool {
 // Reset resets the timer to the original duration
 func (t *CooldownTimer) Reset() {
 	t.Stop()
+
+	t.mu.Lock()
 	t.stopped = false
 	t.frozenRemaining = 0
 	t.startTime = time.Now()
 	t.ticker = time.NewTicker(1 * time.Second)
 	t.done = make(chan bool)
+	t.mu.Unlock()
+
 	t.start()
 }
 
