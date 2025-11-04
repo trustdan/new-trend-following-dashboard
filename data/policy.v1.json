@@ -1,0 +1,345 @@
+{
+  "policy_id": "tf-engine-policy",
+  "version": "1.0.0",
+  "generated_at": "2025-11-04T00:47:30Z",
+  "app_min_version": "2.0.0",
+  "security": {
+    "signature_alg": "sha256",
+    "signature": "REPLACE_WITH_SHA256_OR_SIGNATURE",
+    "enforce_hash": false,
+    "on_hash_mismatch": "safe_mode"
+  },
+  "defaults": {
+    "portfolio_heat_cap": 0.04,
+    "bucket_heat_cap": 0.015,
+    "risk_per_trade": 0.0075,
+    "cooldown_seconds": 120,
+    "chart_view_param": "v=211"
+  },
+  "safe_mode": {
+    "allowed_sectors": [
+      "Healthcare",
+      "Technology"
+    ],
+    "blocked_sectors": [
+      "Utilities"
+    ],
+    "warned_sectors": [
+      "Energy"
+    ]
+  },
+  "sectors": [
+    {
+      "name": "Healthcare",
+      "priority": 1,
+      "blocked": false,
+      "warning": false,
+      "heat_cap_percent": 0.015,
+      "notes": "Best overall; clean trends; options-friendly holds.",
+      "allowed_strategies": [
+        "Alt10",
+        "Alt46",
+        "Alt43",
+        "Alt39",
+        "Alt28"
+      ],
+      "screener_urls": {
+        "universe": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,sh_price_o50,fa_epsyoy_pos,fa_sales5years_pos,fa_roe_pos,ta_sma200_pa&ft=4",
+        "pullback": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_sma50_pb,ta_rsi_os40&ft=4",
+        "breakout": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_highlow52w_nh&ft=4",
+        "golden_cross": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,ta_sma200_pa,ta_sma50_pa200,ta_pattern_tlsupport&ft=4"
+      }
+    },
+    {
+      "name": "Technology",
+      "priority": 2,
+      "blocked": false,
+      "warning": false,
+      "heat_cap_percent": 0.015,
+      "notes": "Strong momentum; tech mega-caps + QQQ.",
+      "allowed_strategies": [
+        "Alt26",
+        "Alt22",
+        "Alt15",
+        "Alt47",
+        "Alt10"
+      ],
+      "screener_urls": {
+        "universe": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_largeover,sh_avgvol_o1000,sh_price_o100,fa_epsyoy_pos,fa_epsyoy1_pos,fa_roe_o15,ta_sma200_pa&ft=4",
+        "pullback": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pa,ta_sma50_pb,ta_rsi_os40&ft=4",
+        "breakout": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pa,ta_highlow52w_nh&ft=4",
+        "golden_cross": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_midover,sh_avgvol_o500,ta_sma200_pa,ta_sma50_pa200,ta_pattern_tlsupport&ft=4"
+      }
+    },
+    {
+      "name": "Consumer Discretionary",
+      "priority": 3,
+      "blocked": false,
+      "warning": false,
+      "heat_cap_percent": 0.015,
+      "notes": "Explosive names (AMZN); use Alt10/Alt26/Alt9.",
+      "allowed_strategies": [
+        "Alt10",
+        "Alt26",
+        "Alt9"
+      ]
+    },
+    {
+      "name": "Industrials",
+      "priority": 3,
+      "blocked": false,
+      "warning": false,
+      "heat_cap_percent": 0.015,
+      "notes": "CAT shines; Alt10 and Alt26 strong.",
+      "allowed_strategies": [
+        "Alt10",
+        "Alt26",
+        "Alt28"
+      ]
+    },
+    {
+      "name": "Communication Services",
+      "priority": 3,
+      "blocked": false,
+      "warning": false,
+      "heat_cap_percent": 0.015,
+      "notes": "GOOGL good with SAR and fractional.",
+      "allowed_strategies": [
+        "Alt22",
+        "Alt26",
+        "Alt10"
+      ]
+    },
+    {
+      "name": "Consumer Defensive",
+      "priority": 3,
+      "blocked": false,
+      "warning": false,
+      "heat_cap_percent": 0.015,
+      "notes": "WMT trends; baseline/Alt26/Alt10 work.",
+      "allowed_strategies": [
+        "Baseline",
+        "Alt26",
+        "Alt10"
+      ]
+    },
+    {
+      "name": "Financials",
+      "priority": 4,
+      "blocked": false,
+      "warning": false,
+      "heat_cap_percent": 0.015,
+      "notes": "Mixed; profit targets + fractional.",
+      "allowed_strategies": [
+        "Alt10",
+        "Alt26",
+        "Alt28"
+      ]
+    },
+    {
+      "name": "Real Estate",
+      "priority": 4,
+      "blocked": false,
+      "warning": true,
+      "heat_cap_percent": 0.01,
+      "notes": "PLD okay; XLRE fails\u2014treat with caution.",
+      "allowed_strategies": [
+        "Alt10",
+        "Alt26"
+      ]
+    },
+    {
+      "name": "Energy",
+      "priority": 5,
+      "blocked": false,
+      "warning": true,
+      "heat_cap_percent": 0.0,
+      "notes": "Mean-reverting; trend-following weak. Prefer no trades until a mean-reversion system exists.",
+      "allowed_strategies": []
+    },
+    {
+      "name": "Utilities",
+      "priority": 6,
+      "blocked": true,
+      "warning": false,
+      "heat_cap_percent": 0.0,
+      "notes": "Zero profitable strategies across tests\u2014BLOCKED.",
+      "allowed_strategies": []
+    }
+  ],
+  "strategies": {
+    "Alt10": {
+      "label": "Profit Targets (3N/6N/9N)",
+      "options_suitability": "excellent",
+      "hold_weeks": "3-10",
+      "best_examples": [
+        "UNH",
+        "XLV",
+        "SPY",
+        "QQQ",
+        "XLY"
+      ],
+      "notes": "Universal across stocks and ETFs."
+    },
+    "Alt26": {
+      "label": "Fractional Pyramid (100%\u219275%\u219250%\u219225%)",
+      "options_suitability": "excellent",
+      "hold_weeks": "2-8",
+      "best_examples": [
+        "SPY",
+        "XLV",
+        "QQQ",
+        "MSFT",
+        "WMT"
+      ],
+      "notes": "Best SPY result; low drawdowns."
+    },
+    "Alt43": {
+      "label": "Volatility-Adaptive Targets",
+      "options_suitability": "excellent (stocks), selective (ETFs)",
+      "hold_weeks": "3-12",
+      "best_examples": [
+        "XLV",
+        "UNH",
+        "MSFT",
+        "CAT",
+        "WMT"
+      ],
+      "notes": "Record healthcare ETF performance; SPY underperforms vs Alt39."
+    },
+    "Alt46": {
+      "label": "Sector-Adaptive Parameters",
+      "options_suitability": "excellent (healthcare)",
+      "hold_weeks": "3-12",
+      "best_examples": [
+        "XLV",
+        "UNH",
+        "MSFT",
+        "GOOGL"
+      ],
+      "notes": "Healthcare specialist; near-record XLV."
+    },
+    "Alt22": {
+      "label": "Parabolic SAR",
+      "options_suitability": "excellent for QQQ/tech; avoid defensive sectors",
+      "hold_weeks": "2-6",
+      "best_examples": [
+        "QQQ",
+        "GOOGL",
+        "AMZN"
+      ],
+      "notes": "High churn; loves momentum breakouts."
+    },
+    "Alt47": {
+      "label": "Momentum-Scaled Sizing",
+      "options_suitability": "stocks only",
+      "hold_weeks": "4-10",
+      "best_examples": [
+        "MSFT",
+        "CAT",
+        "PLD",
+        "WMT"
+      ],
+      "notes": "Ultra-low drawdowns on single names; avoid all ETFs."
+    },
+    "Alt9": {
+      "label": "Time Exit (40 bars)",
+      "options_suitability": "selective; stocks only",
+      "hold_weeks": "8",
+      "best_examples": [
+        "AMZN",
+        "WMT",
+        "UNH",
+        "CAT"
+      ],
+      "notes": "Catastrophic on SPY; okay on growth stocks."
+    },
+    "Alt28": {
+      "label": "ADX Filter",
+      "options_suitability": "selective",
+      "hold_weeks": "variable",
+      "best_examples": [
+        "UNH",
+        "CAT",
+        "MSFT"
+      ],
+      "notes": "Diagnostic tool; over-filters choppy sectors."
+    },
+    "Alt39": {
+      "label": "Age-Based Targets",
+      "options_suitability": "excellent (broad ETFs and healthcare)",
+      "hold_weeks": "3-12",
+      "best_examples": [
+        "SPY",
+        "QQQ",
+        "XLV",
+        "UNH"
+      ],
+      "notes": "Time-adaptive exits; great on slow grinders."
+    },
+    "Alt45": {
+      "label": "Dual-Momentum Confirmation",
+      "options_suitability": "excellent (stocks), weak (SPY)",
+      "hold_weeks": "3-12",
+      "best_examples": [
+        "QQQ",
+        "XLV",
+        "CAT",
+        "GOOGL",
+        "WMT"
+      ],
+      "notes": "2nd-best consistency; avoids weak breakouts."
+    },
+    "Baseline": {
+      "label": "Turtle Core v2.2",
+      "options_suitability": "good",
+      "hold_weeks": "4-12",
+      "best_examples": [
+        "MSFT",
+        "AMZN",
+        "WMT",
+        "CAT",
+        "XLV"
+      ],
+      "notes": "Reliable benchmark; regular exits; pyramiding."
+    },
+    "Alt20": {
+      "label": "Asymmetric Long/Short",
+      "options_suitability": "do_not_use",
+      "hold_weeks": "n/a",
+      "best_examples": [],
+      "notes": "Catastrophic across assets; disabled."
+    }
+  },
+  "finviz_helpers": {
+    "etf_temperature": "https://finviz.com/screener.ashx?v=211&f=ta_sma200_pa,ticker_xlv_xly_xlk_xli_xlf_qqq_spy&ft=4",
+    "blacklist": "https://finviz.com/screener.ashx?v=211&f=sec_energy_utilities&ft=4"
+  },
+  "checklist": {
+    "required": [
+      "SIG_REQ",
+      "RISK_REQ",
+      "OPT_REQ",
+      "EXIT_REQ",
+      "BEHAV_REQ"
+    ],
+    "optional": [
+      "REGIME_OK",
+      "NO_CHASE",
+      "JOURNAL_DONE"
+    ],
+    "poker_sizing": {
+      "5": 0.5,
+      "6": 0.75,
+      "7": 1.0,
+      "8": 1.25
+    },
+    "min_contracts": 1
+  },
+  "calendar": {
+    "past_days": 14,
+    "future_days": 84,
+    "y_axis": "sector",
+    "bar_label": "ticker"
+  }
+}
