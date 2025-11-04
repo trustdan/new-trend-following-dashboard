@@ -53,9 +53,18 @@ func (s *TickerEntry) GetName() string {
 }
 
 // SetNavCallbacks sets navigation callback functions
-func (s *TickerEntry) SetNavCallbacks(onNext, onBack, onCancel func()) {
-	s.onNext = onNext
-	s.onBack = onBack
+func (s *TickerEntry) SetNavCallbacks(onNext, onBack func() error, onCancel func()) {
+	// Wrap error-returning callbacks to match internal func() signature
+	s.onNext = func() {
+		if onNext != nil {
+			onNext()
+		}
+	}
+	s.onBack = func() {
+		if onBack != nil {
+			onBack()
+		}
+	}
 	s.onCancel = onCancel
 }
 

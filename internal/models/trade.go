@@ -14,20 +14,23 @@ type Trade struct {
 	Sector          string    `json:"sector"`
 
 	// Screen 3: Ticker + Strategy
-	Ticker          string    `json:"ticker"`
-	Strategy        string    `json:"strategy"`
-	CooldownComplete bool     `json:"cooldown_complete"`
+	Ticker             string    `json:"ticker"`
+	Strategy           string    `json:"strategy"`
+	CooldownStartTime  time.Time `json:"cooldown_start_time"`
+	CooldownComplete   bool      `json:"cooldown_complete"`
 
 	// Screen 4: Checklist
-	ChecklistPassed bool               `json:"checklist_passed"`
-	ChecklistScore  int                `json:"checklist_score"`
-	ChecklistResults map[string]bool   `json:"checklist_results"`
+	ChecklistPassed   bool            `json:"checklist_passed"`
+	ChecklistRequired map[string]bool `json:"checklist_required"`
+	ChecklistOptional map[string]bool `json:"checklist_optional"`
 
 	// Screen 5: Position Sizing
-	AccountEquity   float64   `json:"account_equity"`
-	RiskPerTrade    float64   `json:"risk_per_trade"`
-	PositionSize    int       `json:"position_size"`
-	MaxLoss         float64   `json:"max_loss"`
+	Conviction      int     `json:"conviction"`       // 5-8 poker-bet sizing
+	AccountEquity   float64 `json:"account_equity"`
+	RiskPerTrade    float64 `json:"risk_per_trade"`
+	SizingMultiplier float64 `json:"sizing_multiplier"` // From poker sizing
+	PositionSize    int     `json:"position_size"`
+	MaxLoss         float64 `json:"max_loss"`
 
 	// Screen 6: Heat Check
 	PortfolioHeat   float64   `json:"portfolio_heat"`

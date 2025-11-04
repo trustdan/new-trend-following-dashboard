@@ -47,6 +47,11 @@ func (s *AppState) StartCooldown() {
 	now := time.Now()
 	s.CooldownStart = &now
 	s.CooldownActive = true
+
+	// Also set cooldown start time in current trade for persistence
+	if s.CurrentTrade != nil {
+		s.CurrentTrade.CooldownStartTime = now
+	}
 }
 
 // IsCooldownComplete checks if cooldown has expired
