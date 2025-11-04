@@ -1,0 +1,11 @@
+INFO:  2025/11/04 09:29:55 logger.go:49: Logging initialized: logs\tf-engine_2025-11-04_09-29-55.log
+INFO:  2025/11/04 09:29:55 logger.go:63: === TF-Engine 2.0 Starting ===
+INFO:  2025/11/04 09:29:55 logger.go:64: Working directory: c:\Users\Dan\new-trend-following-dashboard
+INFO:  2025/11/04 09:29:55 logger.go:65: Executable path: C:\Users\Dan\new-trend-following-dashboard\tf-engine.exe
+INFO:  2025/11/04 09:29:55 logger.go:66: Go version: go1.21+
+INFO:  2025/11/04 09:29:55 logger.go:67: OS: /
+INFO:  2025/11/04 09:29:55 main.go:48: Starting TF-Engine 2.0 version 1.0.0
+DEBUG: 2025/11/04 09:29:55 main.go:156: Created directory: data
+DEBUG: 2025/11/04 09:29:55 main.go:156: Created directory: data/ui
+DEBUG: 2025/11/04 09:29:55 main.go:156: Created directory: data/backups
+DEBUG: 2025/11/04 09:29:55 main.go:156: Created directory: logs

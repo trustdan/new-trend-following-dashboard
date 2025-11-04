@@ -52,7 +52,7 @@ func GetHelpForScreen(screenName string) HelpContent {
 		},
 		"ticker_entry": {
 			Title:       "Screen 3: Ticker & Strategy Entry",
-			Description: "Enter your chosen ticker and select a strategy. The 120-second cooldown timer starts when you proceed.",
+			Description: "Enter your chosen ticker and select a strategy. The 5-minute cooldown timer starts when you proceed.",
 			Steps: []string{
 				"1. Type ticker symbol (e.g., UNH, MSFT)",
 				"2. Select strategy from dropdown (filtered by sector)",
@@ -68,7 +68,7 @@ func GetHelpForScreen(screenName string) HelpContent {
 			Title:       "Screen 4: Anti-Impulsivity Checklist",
 			Description: "Complete required criteria before trading. This forced pause improves decision quality.",
 			Steps: []string{
-				"1. Wait for cooldown timer to complete (120 seconds)",
+				"1. Wait for cooldown timer to complete (5 minutes)",
 				"2. Check all 5 REQUIRED items:",
 				"   • Signal confirmed (price above SMA200, Donchian breakout)",
 				"   • Risk acceptable (stop-loss placement reasonable)",

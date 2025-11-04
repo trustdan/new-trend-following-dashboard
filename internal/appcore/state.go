@@ -8,15 +8,17 @@ import (
 
 // AppState holds the global application state
 type AppState struct {
-	Policy         *models.Policy
-	FeatureFlags   *config.FeatureFlags
-	Settings       *models.Settings
-	CurrentTrade   *models.Trade
-	CurrentScreen  string
-	AllTrades      []models.Trade
-	CooldownActive bool
-	CooldownStart  *time.Time
-	SafeModeActive bool
+	Policy            *models.Policy
+	FeatureFlags      *config.FeatureFlags
+	Settings          *models.Settings
+	CurrentTrade      *models.Trade
+	CurrentScreen     string
+	AllTrades         []models.Trade
+	CooldownActive    bool
+	CooldownStart     *time.Time
+	CooldownDuration  time.Duration
+	CooldownCompleted bool
+	SafeModeActive    bool
 }
 
 // NewAppState creates a new application state
@@ -44,11 +46,19 @@ func (s *AppState) UseSafeMode() {
 	s.SafeModeActive = true
 }
 
-// StartCooldown begins the 120-second anti-impulsivity timer
+// StartCooldown begins the anti-impulsivity timer
 func (s *AppState) StartCooldown() {
 	now := time.Now()
 	s.CooldownStart = &now
 	s.CooldownActive = true
+	s.CooldownCompleted = false
+
+	// Get duration from policy, default to 300 seconds (5 minutes)
+	if s.Policy != nil && s.Policy.Defaults.CooldownSeconds > 0 {
+		s.CooldownDuration = time.Duration(s.Policy.Defaults.CooldownSeconds) * time.Second
+	} else {
+		s.CooldownDuration = 300 * time.Second
+	}
 
 	// Also set cooldown start time in current trade for persistence
 	if s.CurrentTrade != nil {
@@ -59,10 +69,18 @@ func (s *AppState) StartCooldown() {
 // IsCooldownComplete checks if cooldown has expired
 func (s *AppState) IsCooldownComplete() bool {
 	if s.CooldownStart == nil {
-		return false
+		return s.CooldownCompleted
 	}
 	elapsed := time.Since(*s.CooldownStart)
-	return elapsed >= 120*time.Second
+	duration := s.CooldownDuration
+	if duration == 0 {
+		duration = 300 * time.Second
+	}
+	complete := elapsed >= duration
+	if complete {
+		s.CooldownCompleted = true
+	}
+	return complete
 }
 
 // GetCooldownRemaining returns seconds remaining in cooldown
@@ -71,7 +89,11 @@ func (s *AppState) GetCooldownRemaining() int {
 		return 0
 	}
 	elapsed := time.Since(*s.CooldownStart)
-	remaining := 120*time.Second - elapsed
+	duration := s.CooldownDuration
+	if duration == 0 {
+		duration = 300 * time.Second
+	}
+	remaining := duration - elapsed
 	if remaining < 0 {
 		return 0
 	}

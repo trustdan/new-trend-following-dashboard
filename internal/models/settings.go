@@ -15,10 +15,10 @@ type Settings struct {
 func DefaultSettings() *Settings {
 	return &Settings{
 		ThemeMode:        "day",
-		AccountEquity:    100000.00,
-		RiskPerTrade:     0.0075,
-		PortfolioHeatCap: 0.04,
-		BucketHeatCap:    0.015,
+		AccountEquity:    25000.00,  // $25K starting capital
+		RiskPerTrade:     0.028,     // 2.8% = $700 standard bet (25000 × 0.028)
+		PortfolioHeatCap: 0.04,      // 4% max portfolio heat
+		BucketHeatCap:    0.015,     // 1.5% max per sector
 		VimiumEnabled:    false,
 		SampleDataMode:   false,
 	}

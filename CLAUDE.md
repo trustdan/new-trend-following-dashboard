@@ -4,6 +4,38 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## 📁 FILE ORGANIZATION (Updated Nov 4, 2025)
+
+**Active Documentation (Root Directory):**
+
+- [README.md](README.md) - Project overview
+- [CLAUDE.md](CLAUDE.md) - This file (AI assistant instructions)
+- [architects-intent.md](architects-intent.md) - Original design intent
+- [architectural-overview.md](architectural-overview.md) - System architecture
+- [BUILD_GUIDE.md](BUILD_GUIDE.md) - Build and release documentation
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
+- [BEARISH_SCREENER_EVALUATION.md](BEARISH_SCREENER_EVALUATION.md) - Bearish screener analysis
+- [BEARISH_SCREENERS_FIXED.md](BEARISH_SCREENERS_FIXED.md) - Bearish screener fixes
+
+**Archived Documentation:**
+
+- [docs/archive/](docs/archive/) - Historical phase completion reports, bug fixes, test results
+
+**Scripts:**
+
+- [scripts/](scripts/) - Python scripts for policy management (bearish screeners, etc.)
+
+**Research:**
+
+- [backtesting-lessons/](backtesting-lessons/) - 293 backtest analysis and discoveries
+- [screeners/](screeners/) - Finviz screener guides and decision trees
+
+**Build Outputs:**
+
+- [dist/](dist/) - Built executables and runtime files
+
+---
+
 # GOLDEN RULES
 
 Always review the rules when starting a new conversation.
@@ -56,7 +88,7 @@ This isn't optional UX polish—these are behavioral finance guardrails that pre
 This application guides options traders through a systematic decision workflow based on 293 validated backtests across 14 trend-following strategies and 21 securities. The research discovered that strategy performance is highly sector-dependent, leading to a sector-first workflow design.
 
 ### Research Foundation
-The app is informed by extensive backtesting research documented in [DISCOVERIES_AND_LEARNINGS.md](DISCOVERIES_AND_LEARNINGS.md):
+The app is informed by extensive backtesting research documented in [DISCOVERIES_AND_LEARNINGS.md](backtesting-lessons/DISCOVERIES_AND_LEARNINGS.md):
 - **293 validated backtests** (99.74% data quality)
 - **Key finding:** Alt10 (Profit Targets) achieved 76.19% success rate
 - **Critical insight:** Healthcare 92% success rate, Utilities 0% success rate
@@ -608,9 +640,9 @@ func StartCooldown(duration int, callback func()) {
 
 ### For Understanding the Research
 
-- **[DISCOVERIES_AND_LEARNINGS.md](DISCOVERIES_AND_LEARNINGS.md)**: Complete 293-backtest analysis with strategy rankings
+- **[DISCOVERIES_AND_LEARNINGS.md](backtesting-lessons/DISCOVERIES_AND_LEARNINGS.md)**: Complete 293-backtest analysis with strategy rankings
 - **[README.md](README.md)**: Project overview and methodology
-- **[MASTER-SCREENER-GUIDE.md](MASTER-SCREENER-GUIDE.md)**: Three-tier Finviz screening framework
+- **[MASTER-SCREENER-GUIDE.md](screeners/MASTER-SCREENER-GUIDE.md)**: Three-tier Finviz screening framework
 
 ### For Understanding User Intent
 
@@ -644,9 +676,9 @@ These are potential features mentioned in documentation but NOT yet approved for
 
 ### When Starting a New Feature
 
-1. **Read architects-intent.md** to understand user's original vision
-2. **Check policy.v1.json** to see if feature is configuration-driven
-3. **Review DISCOVERIES_AND_LEARNINGS.md** for research context
+1. **Read [architects-intent.md](architects-intent.md)** to understand user's original vision
+2. **Check [data/policy.v1.json](data/policy.v1.json)** to see if feature is configuration-driven
+3. **Review [backtesting-lessons/DISCOVERIES_AND_LEARNINGS.md](backtesting-lessons/DISCOVERIES_AND_LEARNINGS.md)** for research context
 4. **Ask user for approval** if feature wasn't explicitly requested
 
 ### When Modifying Existing Code

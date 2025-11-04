@@ -87,6 +87,19 @@ func main() {
 	}
 	state.FeatureFlags = featureFlags
 
+	// Load user settings
+	logging.InfoLogger.Println("Loading user settings...")
+	settings, err := storage.LoadSettings()
+	if err != nil {
+		logging.ErrorLogger.Printf("Failed to load settings: %v", err)
+		logging.InfoLogger.Println("Using default settings")
+		settings = models.DefaultSettings()
+	} else {
+		logging.InfoLogger.Printf("Settings loaded: $%.0f equity, %.2f%% risk",
+			settings.AccountEquity, settings.RiskPerTrade*100)
+	}
+	state.Settings = settings
+
 	// Load existing trades
 	logging.InfoLogger.Println("Loading existing trades...")
 	trades, err := storage.LoadAllTrades()
@@ -217,7 +230,7 @@ This application guides you through a systematic options trading workflow:
 
 Key Features:
 • Policy-driven strategy selection
-• 120-second cooldown timer
+• 5-minute cooldown timer
 • Portfolio heat limits (4% max)
 • Sector-based strategy filtering
 

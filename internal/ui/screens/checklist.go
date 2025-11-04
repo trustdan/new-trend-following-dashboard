@@ -233,6 +233,24 @@ func (s *Checklist) createCooldownSection() fyne.CanvasObject {
 			func() {
 				// On complete, update validation state
 				s.updateValidation()
+
+				// Send Windows toast notification with ticker symbol
+				if s.window != nil && s.state != nil && s.state.CurrentTrade != nil {
+					ticker := s.state.CurrentTrade.Ticker
+					if ticker == "" {
+						ticker = "Unknown"
+					}
+
+					notification := &fyne.Notification{
+						Title:   "Trade Cooldown Complete!",
+						Content: fmt.Sprintf("You're cleared hot to proceed with %s trade", ticker),
+					}
+
+					app := fyne.CurrentApp()
+					if app != nil {
+						app.SendNotification(notification)
+					}
+				}
 			},
 		)
 	} else {

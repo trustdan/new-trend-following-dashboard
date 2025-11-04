@@ -1,0 +1,90 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                   TF-ENGINE 2.0 - BUILD QUICK REFERENCE                    ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ DURING DEVELOPMENT (FAST)                                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  run.bat                   Build and run in one command (fastest!)
+  quick-build.bat           Build without tests (3-5 seconds)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ BEFORE COMMITTING (VERIFY)                                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  build.bat                 Full build with tests (10-30 seconds)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ CREATING RELEASES                                                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  build-installer.bat       Create Windows installer (30-60 seconds)
+                            Outputs: TFEngine-Setup-1.0.0.exe
+                                     TFEngine-Setup-1.0.0.exe.sha256
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ CLEANUP                                                                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  clean.bat                 Remove build artifacts
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ FILE LOCATIONS                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Source Policy:  data\policy.v1.json          ← EDIT THIS
+  Built Exe:      dist\tf-engine.exe           ← RUN THIS
+  Installer:      TFEngine-Setup-1.0.0.exe     ← SHARE THIS
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ TYPICAL WORKFLOW                                                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  1. Edit code
+  2. run.bat                                    (test changes)
+  3. Repeat steps 1-2 until working
+  4. build.bat                                  (verify tests pass)
+  5. Git commit & push
+
+  WHEN RELEASING:
+  6. Update version in tf-engine-installer.nsi
+  7. build-installer.bat
+  8. Test TFEngine-Setup-1.0.0.exe
+  9. Create GitHub release
+  10. Upload installer + .sha256 hash
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ TROUBLESHOOTING                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Tests failing?                build.bat shows errors → fix tests
+
+  Need to build anyway?         quick-build.bat (skips tests)
+
+  NSIS not found?               Install from: nsis.sourceforge.io/Download
+                                or edit NSIS_PATH in build-installer.bat
+
+  Build behaving weird?         clean.bat (fresh start)
+
+  Exe file huge (40 MB)?        This is normal! Go includes full runtime.
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ MORE HELP                                                                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Full documentation:   BUILD_GUIDE.md
+  Project docs:         CLAUDE.md
+  Backtest research:    DISCOVERIES_AND_LEARNINGS.md
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║                            CHEAT SHEET                                     ║
+╠════════════════════════════════════════════════════════════════════════════╣
+║  run.bat              → Build and run (fastest, use this!)                 ║
+║  quick-build.bat      → Build only (no tests)                              ║
+║  build.bat            → Full build with tests (before commits)             ║
+║  build-installer.bat  → Create installer (for releases)                    ║
+║  clean.bat            → Clean everything                                   ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+Print this and tape to your monitor! :)

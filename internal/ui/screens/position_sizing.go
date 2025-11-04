@@ -226,13 +226,15 @@ func (s *PositionSizing) createAccountSection() fyne.CanvasObject {
 	// Account equity
 	accountLabel := widget.NewLabel("Account Equity ($):")
 	s.accountEntry = widget.NewEntry()
-	s.accountEntry.SetPlaceHolder("e.g., 100000")
+	s.accountEntry.SetPlaceHolder("e.g., 25000")
 
-	// Restore previous value or use default
+	// Restore previous value or use default from Settings
 	if s.state.CurrentTrade != nil && s.state.CurrentTrade.AccountEquity > 0 {
 		s.accountEntry.SetText(fmt.Sprintf("%.0f", s.state.CurrentTrade.AccountEquity))
+	} else if s.state.Settings != nil {
+		s.accountEntry.SetText(fmt.Sprintf("%.0f", s.state.Settings.AccountEquity))
 	} else {
-		s.accountEntry.SetText("100000") // Default $100k
+		s.accountEntry.SetText("25000") // Fallback default $25k
 	}
 
 	s.accountEntry.OnChanged = func(value string) {
@@ -242,12 +244,16 @@ func (s *PositionSizing) createAccountSection() fyne.CanvasObject {
 	// Risk per trade percentage
 	riskLabel := widget.NewLabel("Risk Per Trade (%):")
 	s.riskPercentEntry = widget.NewEntry()
-	s.riskPercentEntry.SetPlaceHolder("e.g., 0.75")
+	s.riskPercentEntry.SetPlaceHolder("e.g., 2.80")
 
-	// Use value from policy or previous trade
-	riskPercent := s.state.Policy.Defaults.RiskPerTrade * 100 // Convert to percentage
+	// Use value from Settings, previous trade, or policy (in that order)
+	riskPercent := 2.80 // Default fallback
 	if s.state.CurrentTrade != nil && s.state.CurrentTrade.RiskPerTrade > 0 {
 		riskPercent = s.state.CurrentTrade.RiskPerTrade * 100
+	} else if s.state.Settings != nil && s.state.Settings.RiskPerTrade > 0 {
+		riskPercent = s.state.Settings.RiskPerTrade * 100
+	} else if s.state.Policy != nil && s.state.Policy.Defaults.RiskPerTrade > 0 {
+		riskPercent = s.state.Policy.Defaults.RiskPerTrade * 100
 	}
 	s.riskPercentEntry.SetText(fmt.Sprintf("%.2f", riskPercent))
 

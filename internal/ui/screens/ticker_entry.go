@@ -132,10 +132,10 @@ func (s *TickerEntry) createInfoBanner() fyne.CanvasObject {
 	}
 
 	text := widget.NewLabel(
-		fmt.Sprintf("ALL strategies are shown with color-coded suitability for %s sector. "+
-			"🟢 = Excellent/Good | 🟡 = Marginal (requires acknowledgement) | 🔴 = Incompatible (strong warning). "+
+		fmt.Sprintf("Top five strategies are shown with color-coded suitability for %s sector. "+
+			"[GREEN] = Excellent/Good | [YELLOW] = Marginal (requires acknowledgement) | [RED] = Incompatible (strong warning). "+
 			"Enter a ticker you found in the FINVIZ screener. "+
-			"A 120-second cooldown will start when you proceed.",
+			"A 5-minute cooldown will start when you proceed.",
 			sectorName),
 	)
 	text.Wrapping = fyne.TextWrapWord
@@ -186,7 +186,7 @@ func (s *TickerEntry) createForm() fyne.CanvasObject {
 
 	s.strategySelect = s.createStrategyDropdown()
 
-	strategyHelp := widget.NewLabel("ALL strategies shown - green = good, yellow/red require acknowledgement")
+	strategyHelp := widget.NewLabel("ALL strategies shown - [GREEN] = good, [YELLOW]/[RED] require acknowledgement")
 	strategyHelp.TextStyle = fyne.TextStyle{Italic: true}
 
 	// Strategy metadata display (initially hidden)
@@ -219,7 +219,7 @@ func (s *TickerEntry) createForm() fyne.CanvasObject {
 	return form
 }
 
-// createStrategyDropdown creates strategy dropdown showing ALL strategies with color indicators
+// createStrategyDropdown creates strategy dropdown showing top strategies with color indicators
 func (s *TickerEntry) createStrategyDropdown() *widget.Select {
 	strategies := s.getAllStrategiesWithIndicators()
 
@@ -232,60 +232,52 @@ func (s *TickerEntry) createStrategyDropdown() *widget.Select {
 	return dropdown
 }
 
-// getAllStrategiesWithIndicators returns ALL strategies with color-coded suitability indicators
+// getAllStrategiesWithIndicators returns top strategies with color-coded suitability indicators
 func (s *TickerEntry) getAllStrategiesWithIndicators() []string {
 	if s.state.CurrentTrade == nil || s.state.CurrentTrade.Sector == "" {
+		fmt.Println("DEBUG: No current trade or sector, returning empty list")
 		return []string{}
 	}
 
-	var strategyLabels []string
+	// DEBUG: Log policy strategy count
+	fmt.Printf("DEBUG: Total strategies in policy: %d\n", len(s.state.Policy.Strategies))
+	fmt.Printf("DEBUG: Current sector: %s\n", s.state.CurrentTrade.Sector)
 
-	// Show ALL strategies from policy with color indicators
-	for stratID, strategy := range s.state.Policy.Strategies {
-		suitability := s.getSuitability(stratID, s.state.CurrentTrade.Sector)
-		indicator := s.getColorIndicator(suitability.Color)
-
-		// Format: "🟢 Alt10 - Profit Targets (3N/6N/9N)"
-		label := fmt.Sprintf("%s %s - %s", indicator, stratID, strategy.Label)
-		strategyLabels = append(strategyLabels, label)
+	sector := findSector(s.state.Policy, s.state.CurrentTrade.Sector)
+	if sector == nil {
+		fmt.Println("DEBUG: Sector not found in policy")
+		return []string{}
 	}
+
+	options := selectTopStrategies(s.state.Policy, sector, 5)
+
+	var strategyLabels []string
+	for _, option := range options {
+		indicator := getColorIndicatorText(option.Suitability.Color)
+		label := fmt.Sprintf("%s %s - %s", indicator, option.ID, option.Strategy.Label)
+		strategyLabels = append(strategyLabels, label)
+		fmt.Printf("DEBUG: Added strategy: %s (color: %s, rating: %s)\n",
+			option.ID, option.Suitability.Color, option.Suitability.Rating)
+	}
+
+	fmt.Printf("DEBUG: Returning %d strategy labels\n", len(strategyLabels))
 
 	return strategyLabels
 }
 
 // getSuitability returns the suitability rating for a strategy in a given sector
 func (s *TickerEntry) getSuitability(strategyID, sector string) models.StrategySuitability {
-	// Find the sector in policy
-	for _, sec := range s.state.Policy.Sectors {
-		if sec.Name == sector {
-			// Check if strategy_suitability exists for this strategy
-			if suitability, exists := sec.StrategySuitability[strategyID]; exists {
-				return suitability
-			}
-		}
+	if s.state.Policy == nil {
+		return defaultSuitability()
 	}
 
-	// Default to marginal if not found (requires acknowledgement)
-	return models.StrategySuitability{
-		Rating:                 "marginal",
-		Color:                  "yellow",
-		Rationale:              "Suitability data not available for this sector/strategy combination",
-		RequireAcknowledgement: true,
-	}
+	sectorRef := findSector(s.state.Policy, sector)
+	return getStrategySuitability(sectorRef, strategyID)
 }
 
-// getColorIndicator returns the emoji indicator for a color
+// getColorIndicator returns the text indicator for a color
 func (s *TickerEntry) getColorIndicator(colorName string) string {
-	switch colorName {
-	case "green":
-		return "🟢"
-	case "yellow":
-		return "🟡"
-	case "red":
-		return "🔴"
-	default:
-		return "⚪"
-	}
+	return getColorIndicatorText(colorName)
 }
 
 // onStrategySelected handles strategy selection
@@ -298,12 +290,12 @@ func (s *TickerEntry) onStrategySelected(value string) {
 		return
 	}
 
-	// Extract strategy ID from "🟢 Alt10 - Profit Targets" format
-	// Remove color indicator emoji first
-	value = strings.TrimPrefix(value, "🟢 ")
-	value = strings.TrimPrefix(value, "🟡 ")
-	value = strings.TrimPrefix(value, "🔴 ")
-	value = strings.TrimPrefix(value, "⚪ ")
+	// Extract strategy ID from "[GREEN] Alt10 - Profit Targets" format
+	// Remove text color indicator first
+	value = strings.TrimPrefix(value, "[GREEN] ")
+	value = strings.TrimPrefix(value, "[YELLOW] ")
+	value = strings.TrimPrefix(value, "[RED] ")
+	value = strings.TrimPrefix(value, "[UNKNOWN] ")
 
 	parts := strings.Split(value, " - ")
 	if len(parts) == 0 {
@@ -349,18 +341,29 @@ func (s *TickerEntry) displayStrategyMetadata(strategyID string) {
 		return
 	}
 
-	// Create metadata card
-	bg := canvas.NewRectangle(color.RGBA{R: 240, G: 255, B: 240, A: 255})
+	// Get suitability to determine colors
+	suitability := s.getSuitability(strategyID, s.state.CurrentTrade.Sector)
 
-	// Left border (green)
-	border := canvas.NewRectangle(color.RGBA{R: 0, G: 180, B: 80, A: 255})
-	border.SetMinSize(fyne.NewSize(4, 100))
+	// Create metadata card with color-coded background
+	bg, borderColor := getColorPalette(suitability.Color)
+
+	bgRect := canvas.NewRectangle(bg)
+
+	// Wide left border to show suitability color prominently
+	border := canvas.NewRectangle(borderColor)
+	border.SetMinSize(fyne.NewSize(8, 100)) // Make border wider (8px instead of 4px)
 
 	// Metadata content
 	label := widget.NewLabel(fmt.Sprintf("📋 %s", strategy.Label))
 	label.TextStyle = fyne.TextStyle{Bold: true}
 
-	suitability := widget.NewLabel(fmt.Sprintf("Options Suitability: %s", strategy.OptionsSuitability))
+	// Add suitability rating with color indicator
+	ratingLabel := widget.NewLabel(fmt.Sprintf("Sector Suitability: %s [%s]",
+		strings.ToUpper(suitability.Rating),
+		strings.ToUpper(suitability.Color)))
+	ratingLabel.TextStyle = fyne.TextStyle{Bold: true}
+
+	optionsSuitability := widget.NewLabel(fmt.Sprintf("Options Suitability: %s", strategy.OptionsSuitability))
 
 	holdWeeks := widget.NewLabel(fmt.Sprintf("Typical Hold: %s weeks", strategy.HoldWeeks))
 
@@ -370,14 +373,15 @@ func (s *TickerEntry) displayStrategyMetadata(strategyID string) {
 
 	content := container.NewVBox(
 		label,
-		suitability,
+		ratingLabel,
+		optionsSuitability,
 		holdWeeks,
 		widget.NewSeparator(),
 		notes,
 	)
 
 	card := container.NewStack(
-		bg,
+		bgRect,
 		container.NewBorder(nil, nil, border, nil,
 			container.NewPadded(content),
 		),
@@ -476,11 +480,11 @@ func (s *TickerEntry) startCooldownAndProceed() {
 		}
 	}
 
-	// Start cooldown in app state (120 seconds hardcoded in AppState)
+	// Start cooldown in app state (300 seconds / 5 minutes from policy)
 	s.state.StartCooldown()
 
 	// Log cooldown start
-	fmt.Printf("✓ Cooldown started: 120 seconds for %s (%s)\n",
+	fmt.Printf("✓ Cooldown started: 5 minutes for %s (%s)\n",
 		s.state.CurrentTrade.Ticker,
 		s.state.CurrentTrade.Strategy,
 	)

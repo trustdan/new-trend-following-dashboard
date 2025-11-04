@@ -73,8 +73,17 @@ func (s *ScreenerLaunch) Render() fyne.CanvasObject {
 	progressLabel := widget.NewLabel("Step 2 of 8")
 	progressLabel.Alignment = fyne.TextAlignCenter
 
-	// Info banner
+	// Info banner and strategy badges
 	infoBanner := s.createInfoBanner()
+
+	var badgeHeader fyne.CanvasObject
+	var badgeList fyne.CanvasObject
+	if selectedSector != nil {
+		header := widget.NewLabel("Top Strategy Fits:")
+		header.TextStyle = fyne.TextStyle{Bold: true}
+		badgeHeader = header
+		badgeList = buildCompactStrategyList(s.state.Policy, *selectedSector, 5)
+	}
 
 	// Create screener cards
 	var screenerCards fyne.CanvasObject
@@ -113,16 +122,24 @@ func (s *ScreenerLaunch) Render() fyne.CanvasObject {
 	)
 
 	// Main content
+	topItems := []fyne.CanvasObject{
+		progressLabel,
+		title,
+		subtitle,
+		widget.NewSeparator(),
+		infoBanner,
+	}
+	if badgeHeader != nil && badgeList != nil {
+		topItems = append(topItems,
+			widget.NewSeparator(),
+			badgeHeader,
+			badgeList,
+		)
+	}
+	topItems = append(topItems, widget.NewSeparator())
+
 	content := container.NewBorder(
-		// Top
-		container.NewVBox(
-			progressLabel,
-			title,
-			subtitle,
-			widget.NewSeparator(),
-			infoBanner,
-			widget.NewSeparator(),
-		),
+		container.NewVBox(topItems...),
 		// Bottom
 		container.NewVBox(
 			widget.NewSeparator(),
@@ -158,44 +175,108 @@ func (s *ScreenerLaunch) createScreenerCards(sector models.Sector) fyne.CanvasOb
 		description string
 		frequency   string
 		purpose     string
+		direction   string // "bullish" or "bearish"
 	}{
+		// Bullish screeners
 		"universe": {
-			title:       "Universe Screener",
+			title:       "Universe Screener (Bullish)",
 			description: "Find 30-60 quality stocks in long-term uptrends",
 			frequency:   "Run: Weekly (Monday mornings)",
 			purpose:     "Build your watch list of trendable stocks",
+			direction:   "bullish",
 		},
 		"pullback": {
-			title:       "Pullback Screener",
+			title:       "Pullback Screener (Bullish)",
 			description: "Oversold stocks in uptrends (RSI < 40, price above SMA200)",
 			frequency:   "Run: Daily (before market open)",
 			purpose:     "Find stocks retracing into support levels",
+			direction:   "bullish",
 		},
 		"breakout": {
-			title:       "Breakout Screener",
+			title:       "Breakout Screener (Bullish)",
 			description: "New 52-week highs with strong momentum",
 			frequency:   "Run: Daily (before market open)",
 			purpose:     "Catch momentum breakouts early",
+			direction:   "bullish",
 		},
 		"golden_cross": {
-			title:       "Golden Cross Screener",
+			title:       "Golden Cross Screener (Bullish)",
 			description: "SMA50 crossing above SMA200 (bullish trend confirmation)",
 			frequency:   "Run: Daily (before market open)",
 			purpose:     "Identify major trend reversals",
+			direction:   "bullish",
+		},
+		// Bearish screeners
+		"universe_bearish": {
+			title:       "Universe Screener (Bearish)",
+			description: "Find 30-60 quality stocks in long-term downtrends",
+			frequency:   "Run: Weekly (Monday mornings)",
+			purpose:     "Build your watch list of shortable stocks",
+			direction:   "bearish",
+		},
+		"bounce_bearish": {
+			title:       "Bounce Screener (Bearish)",
+			description: "Overbought stocks in downtrends (RSI > 60, price below SMA200)",
+			frequency:   "Run: Daily (before market open)",
+			purpose:     "Find stocks bouncing into resistance levels",
+			direction:   "bearish",
+		},
+		"breakdown_bearish": {
+			title:       "Breakdown Screener (Bearish)",
+			description: "New 52-week lows with strong momentum",
+			frequency:   "Run: Daily (before market open)",
+			purpose:     "Catch momentum breakdowns early",
+			direction:   "bearish",
+		},
+		"death_cross_bearish": {
+			title:       "Death Cross Screener (Bearish)",
+			description: "SMA50 crossing below SMA200 (bearish trend confirmation)",
+			frequency:   "Run: Daily (before market open)",
+			purpose:     "Identify major trend reversals to downside",
+			direction:   "bearish",
 		},
 	}
 
-	// Create cards in defined order
-	order := []string{"universe", "pullback", "breakout", "golden_cross"}
-	for _, key := range order {
+	// Bullish section header
+	bullishHeader := widget.NewLabel("🟢 Bullish Screeners (Long Opportunities)")
+	bullishHeader.TextStyle = fyne.TextStyle{Bold: true}
+	cards.Add(bullishHeader)
+	cards.Add(widget.NewSeparator())
+
+	// Create bullish screener cards
+	bullishOrder := []string{"universe", "pullback", "breakout", "golden_cross"}
+	bullishCount := 0
+	for _, key := range bullishOrder {
 		if screenerURL, exists := sector.ScreenerURLs[key]; exists {
 			info := screenerInfo[key]
-			card := s.createScreenerCard(key, info.title, info.description, info.frequency, info.purpose, screenerURL)
+			card := s.createScreenerCard(key, info.title, info.description, info.frequency, info.purpose, screenerURL, "bullish")
 			cards.Add(card)
+			bullishCount++
 		}
 	}
 
-	if cards.Objects == nil || len(cards.Objects) == 0 {
+	// Add spacer between sections
+	cards.Add(widget.NewLabel(""))
+
+	// Bearish section header
+	bearishHeader := widget.NewLabel("🔴 Bearish Screeners (Short/Put Opportunities)")
+	bearishHeader.TextStyle = fyne.TextStyle{Bold: true}
+	cards.Add(bearishHeader)
+	cards.Add(widget.NewSeparator())
+
+	// Create bearish screener cards
+	bearishOrder := []string{"universe_bearish", "bounce_bearish", "breakdown_bearish", "death_cross_bearish"}
+	bearishCount := 0
+	for _, key := range bearishOrder {
+		if screenerURL, exists := sector.ScreenerURLs[key]; exists {
+			info := screenerInfo[key]
+			card := s.createScreenerCard(key, info.title, info.description, info.frequency, info.purpose, screenerURL, "bearish")
+			cards.Add(card)
+			bearishCount++
+		}
+	}
+
+	if bullishCount == 0 && bearishCount == 0 {
 		return widget.NewLabel("No screeners available for this sector")
 	}
 
@@ -203,7 +284,7 @@ func (s *ScreenerLaunch) createScreenerCards(sector models.Sector) fyne.CanvasOb
 }
 
 // createScreenerCard creates a single screener card
-func (s *ScreenerLaunch) createScreenerCard(key, title, description, frequency, purpose, screenerURL string) fyne.CanvasObject {
+func (s *ScreenerLaunch) createScreenerCard(key, title, description, frequency, purpose, screenerURL, direction string) fyne.CanvasObject {
 	// Title
 	titleLabel := widget.NewLabel(title)
 	titleLabel.TextStyle = fyne.TextStyle{Bold: true}
@@ -219,10 +300,15 @@ func (s *ScreenerLaunch) createScreenerCard(key, title, description, frequency, 
 	// Purpose
 	purposeLabel := widget.NewLabel("Purpose: " + purpose)
 
-	// Sort info
+	// Sort info - need to strip _bearish suffix for lookup
+	sortKey := key
+	if len(key) > 8 && key[len(key)-8:] == "_bearish" {
+		sortKey = key[:len(key)-8] // Remove _bearish suffix for sort lookup
+	}
+
 	sortLabel := widget.NewLabel("")
 	if s.state.Policy != nil && s.state.Policy.ScreenerSorting != nil {
-		if sortConfig, exists := s.state.Policy.ScreenerSorting[key]; exists {
+		if sortConfig, exists := s.state.Policy.ScreenerSorting[sortKey]; exists {
 			sortDirection := "ascending"
 			if sortConfig.Direction == "desc" {
 				sortDirection = "descending"
@@ -263,8 +349,16 @@ func (s *ScreenerLaunch) createScreenerCard(key, title, description, frequency, 
 		launchBtn,
 	)
 
-	// Blue left border for screener cards
-	leftBorder := canvas.NewRectangle(color.RGBA{R: 0, G: 120, B: 215, A: 255}) // Blue
+	// Color-coded left border based on direction
+	var leftBorder *canvas.Rectangle
+	var bg *canvas.Rectangle
+	if direction == "bearish" {
+		leftBorder = canvas.NewRectangle(color.RGBA{R: 220, G: 53, B: 69, A: 255}) // Red
+		bg = canvas.NewRectangle(color.RGBA{R: 255, G: 240, B: 240, A: 255})       // Very light red
+	} else {
+		leftBorder = canvas.NewRectangle(color.RGBA{R: 0, G: 120, B: 215, A: 255}) // Blue
+		bg = canvas.NewRectangle(color.RGBA{R: 240, G: 248, B: 255, A: 255})       // Very light blue
+	}
 	leftBorder.SetMinSize(fyne.NewSize(4, 100))
 
 	cardWithBorder := container.NewBorder(
@@ -273,9 +367,6 @@ func (s *ScreenerLaunch) createScreenerCard(key, title, description, frequency, 
 		nil,
 		cardContent,
 	)
-
-	// Light background
-	bg := canvas.NewRectangle(color.RGBA{R: 240, G: 248, B: 255, A: 255}) // Very light blue
 
 	card := container.NewStack(
 		bg,

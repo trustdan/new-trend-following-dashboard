@@ -12,6 +12,7 @@ import (
 	"tf-engine/internal/storage"
 	"tf-engine/internal/testing/generators"
 	"tf-engine/internal/ui/help"
+	"tf-engine/internal/ui/screens"
 )
 
 // Dashboard represents the main dashboard screen
@@ -83,8 +84,19 @@ func (d *Dashboard) Render() fyne.CanvasObject {
 		help.ShowHelpDialog("welcome", d.window)
 	})
 
-	// Account info
-	accountInfo := widget.NewLabel("Account Equity: $100,000\nRisk per Trade: 0.75%")
+	settingsButton := widget.NewButton("⚙️ Settings", func() {
+		d.showSettings()
+	})
+
+	// Account info (from Settings)
+	accountEquity := 25000.0
+	riskPercent := 2.8
+	if d.state.Settings != nil {
+		accountEquity = d.state.Settings.AccountEquity
+		riskPercent = d.state.Settings.RiskPerTrade * 100
+	}
+	accountInfo := widget.NewLabel(fmt.Sprintf("Account Equity: $%.0f\nRisk per Trade: %.2f%%",
+		accountEquity, riskPercent))
 
 	// Heat status
 	heatInfo := widget.NewLabel("Portfolio Heat: 0%\nAvailable: 4.0%")
@@ -95,6 +107,7 @@ func (d *Dashboard) Render() fyne.CanvasObject {
 		startButton,
 		resumeButton,
 		calendarButton,
+		settingsButton,
 		helpButton,
 		widget.NewSeparator(),
 		phase2Label,
@@ -156,4 +169,17 @@ func (d *Dashboard) generateSampleData() {
 		},
 		d.window,
 	)
+}
+
+// showSettings displays the settings screen
+func (d *Dashboard) showSettings() {
+	settingsScreen := screens.NewSettings(d.state, d.window)
+
+	// Set back callback to return to dashboard
+	settingsScreen.SetBackCallback(func() {
+		// Refresh dashboard to show updated settings
+		d.window.SetContent(d.Render())
+	})
+
+	d.window.SetContent(settingsScreen.Render())
 }

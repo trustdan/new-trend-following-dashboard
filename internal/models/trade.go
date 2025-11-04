@@ -42,12 +42,15 @@ type Trade struct {
 
 	// Screen 7: Trade Entry
 	OptionsStrategy string    `json:"options_strategy"`
+	OptionsType     string    `json:"options_type,omitempty"` // Alias for OptionsStrategy
 	Strike1         float64   `json:"strike1"`
 	Strike2         float64   `json:"strike2"`
 	Strike3         float64   `json:"strike3"`
 	Strike4         float64   `json:"strike4"`
+	EntryDate       time.Time `json:"entry_date,omitempty"`
 	ExpirationDate  time.Time `json:"expiration_date"`
 	Premium         float64   `json:"premium"`
+	Risk            float64   `json:"risk,omitempty"` // Alias for MaxLoss
 
 	// Exit Information (filled later)
 	ExitDate   *time.Time `json:"exit_date,omitempty"`

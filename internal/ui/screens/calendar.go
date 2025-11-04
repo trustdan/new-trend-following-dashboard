@@ -17,11 +17,17 @@ import (
 	"tf-engine/internal/testing/generators"
 )
 
+// Navigator interface for navigation
+type Navigator interface {
+	NavigateToScreen(index int) error
+}
+
 // Calendar represents Screen 8: Trade Calendar View (Horserace Timeline)
 type Calendar struct {
 	state        *appcore.AppState
 	window       fyne.Window
 	featureFlags *config.FeatureFlags
+	navigator    Navigator
 }
 
 // NewCalendar creates a new calendar screen
@@ -32,12 +38,13 @@ func NewCalendar(state *appcore.AppState, window fyne.Window) *Calendar {
 	}
 }
 
-// NewCalendarWithFlags creates a new calendar screen with feature flags
-func NewCalendarWithFlags(state *appcore.AppState, window fyne.Window, featureFlags *config.FeatureFlags) *Calendar {
+// NewCalendarWithFlags creates a new calendar screen with feature flags and navigator
+func NewCalendarWithFlags(state *appcore.AppState, window fyne.Window, featureFlags *config.FeatureFlags, navigator Navigator) *Calendar {
 	return &Calendar{
 		state:        state,
 		window:       window,
 		featureFlags: featureFlags,
+		navigator:    navigator,
 	}
 }
 
@@ -88,7 +95,12 @@ func (c *Calendar) Render() fyne.CanvasObject {
 
 	// Action buttons
 	newTradeBtn := widget.NewButton("+ New Trade", func() {
-		// Navigator will handle going back to Screen 1
+		if c.navigator != nil {
+			// Navigate to Screen 0 (Sector Selection)
+			if err := c.navigator.NavigateToScreen(0); err != nil {
+				dialog.ShowError(err, c.window)
+			}
+		}
 	})
 	newTradeBtn.Importance = widget.HighImportance
 

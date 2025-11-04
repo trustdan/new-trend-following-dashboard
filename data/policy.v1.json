@@ -13,7 +13,7 @@
     "portfolio_heat_cap": 0.04,
     "bucket_heat_cap": 0.015,
     "risk_per_trade": 0.0075,
-    "cooldown_seconds": 120,
+    "cooldown_seconds": 300,
     "chart_view_param": "v=211"
   },
   "safe_mode": {
@@ -115,7 +115,11 @@
         "universe": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,sh_price_o50,fa_epsyoy_pos,fa_sales5years_pos,fa_roe_pos,ta_sma200_pa&ft=4",
         "pullback": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_sma50_pb,ta_rsi_os40&ft=4",
         "breakout": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_highlow52w_nh&ft=4",
-        "golden_cross": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,ta_sma200_pa,ta_sma50_pa200,ta_pattern_tlsupport&ft=4"
+        "golden_cross": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,ta_sma200_pa,ta_sma50_pa200,ta_pattern_tlsupport&ft=4",
+        "universe_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb&ft=4",
+        "bounce_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb,ta_sma50_pa,ta_rsi_ob60&ft=4",
+        "breakdown_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb,ta_highlow52w_nl,sh_relvol_o2&ft=4",
+        "death_cross_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare,cap_midover,sh_avgvol_o500,ta_sma200_pb,ta_sma50_pb200,ta_pattern_tlresistance&ft=4"
       }
     },
     {
@@ -204,7 +208,11 @@
         "universe": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_largeover,sh_avgvol_o1000,sh_price_o100,fa_epsyoy_pos,fa_epsyoy1_pos,fa_roe_o15,ta_sma200_pa&ft=4",
         "pullback": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pa,ta_sma50_pb,ta_rsi_os40&ft=4",
         "breakout": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pa,ta_highlow52w_nh&ft=4",
-        "golden_cross": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_midover,sh_avgvol_o500,ta_sma200_pa,ta_sma50_pa200,ta_pattern_tlsupport&ft=4"
+        "golden_cross": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_midover,sh_avgvol_o500,ta_sma200_pa,ta_sma50_pa200,ta_pattern_tlsupport&ft=4",
+        "universe_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pb&ft=4",
+        "bounce_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pb,ta_sma50_pa,ta_rsi_ob60&ft=4",
+        "breakdown_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pb,ta_highlow52w_nl,sh_relvol_o2&ft=4",
+        "death_cross_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_technology,cap_midover,sh_avgvol_o500,ta_sma200_pb,ta_sma50_pb200,ta_pattern_tlresistance&ft=4"
       }
     },
     {
@@ -219,6 +227,16 @@
         "Alt26",
         "Alt9"
       ],
+      "screener_urls": {
+        "universe": "https://finviz.com/screener.ashx?v=211&f=sec_consumercyclical,cap_largeover,sh_avgvol_o1000,sh_price_o100,fa_epsyoy_pos,ta_sma200_pa&ft=4",
+        "pullback": "https://finviz.com/screener.ashx?v=211&f=sec_consumercyclical,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pa,ta_sma50_pb,ta_rsi_os40&ft=4",
+        "breakout": "https://finviz.com/screener.ashx?v=211&f=sec_consumercyclical,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pa,ta_highlow52w_nh&ft=4",
+        "golden_cross": "https://finviz.com/screener.ashx?v=211&f=sec_consumercyclical,cap_midover,sh_avgvol_o500,ta_sma200_pa,ta_sma50_pa200,ta_pattern_tlsupport&ft=4",
+        "universe_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_consumercyclical,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pb&ft=4",
+        "bounce_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_consumercyclical,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pb,ta_sma50_pa,ta_rsi_ob60&ft=4",
+        "breakdown_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_consumercyclical,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pb,ta_highlow52w_nl,sh_relvol_o2&ft=4",
+        "death_cross_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_consumercyclical,cap_midover,sh_avgvol_o500,ta_sma200_pb,ta_sma50_pb200,ta_pattern_tlresistance&ft=4"
+      },
       "strategy_suitability": {
         "Alt10": {
           "rating": "excellent",
@@ -282,6 +300,16 @@
         "Alt26",
         "Alt28"
       ],
+      "screener_urls": {
+        "universe": "https://finviz.com/screener.ashx?v=211&f=sec_industrialgoods,cap_midover,sh_avgvol_o500,sh_price_o50,fa_epsyoy_pos,ta_sma200_pa&ft=4",
+        "pullback": "https://finviz.com/screener.ashx?v=211&f=sec_industrialgoods,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_sma50_pb,ta_rsi_os40&ft=4",
+        "breakout": "https://finviz.com/screener.ashx?v=211&f=sec_industrialgoods,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_highlow52w_nh&ft=4",
+        "golden_cross": "https://finviz.com/screener.ashx?v=211&f=sec_industrialgoods,cap_midover,sh_avgvol_o500,ta_sma200_pa,ta_sma50_pa200,ta_pattern_tlsupport&ft=4",
+        "universe_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_industrialgoods,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb&ft=4",
+        "bounce_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_industrialgoods,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb,ta_sma50_pa,ta_rsi_ob60&ft=4",
+        "breakdown_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_industrialgoods,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb,ta_highlow52w_nl,sh_relvol_o2&ft=4",
+        "death_cross_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_industrialgoods,cap_midover,sh_avgvol_o500,ta_sma200_pb,ta_sma50_pb200,ta_pattern_tlresistance&ft=4"
+      },
       "strategy_suitability": {
         "Alt10": {
           "rating": "excellent",
@@ -345,6 +373,16 @@
         "Alt26",
         "Alt10"
       ],
+      "screener_urls": {
+        "universe": "https://finviz.com/screener.ashx?v=211&f=sec_communication,cap_largeover,sh_avgvol_o1000,sh_price_o100,fa_epsyoy_pos,ta_sma200_pa&ft=4",
+        "pullback": "https://finviz.com/screener.ashx?v=211&f=sec_communication,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pa,ta_sma50_pb,ta_rsi_os40&ft=4",
+        "breakout": "https://finviz.com/screener.ashx?v=211&f=sec_communication,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pa,ta_highlow52w_nh&ft=4",
+        "golden_cross": "https://finviz.com/screener.ashx?v=211&f=sec_communication,cap_midover,sh_avgvol_o500,ta_sma200_pa,ta_sma50_pa200,ta_pattern_tlsupport&ft=4",
+        "universe_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_communication,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pb&ft=4",
+        "bounce_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_communication,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pb,ta_sma50_pa,ta_rsi_ob60&ft=4",
+        "breakdown_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_communication,cap_largeover,sh_avgvol_o1000,sh_price_o100,ta_sma200_pb,ta_highlow52w_nl,sh_relvol_o2&ft=4",
+        "death_cross_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_communication,cap_midover,sh_avgvol_o500,ta_sma200_pb,ta_sma50_pb200,ta_pattern_tlresistance&ft=4"
+      },
       "strategy_suitability": {
         "Alt22": {
           "rating": "excellent",
@@ -408,6 +446,16 @@
         "Alt26",
         "Alt10"
       ],
+      "screener_urls": {
+        "universe": "https://finviz.com/screener.ashx?v=211&f=sec_consumergoods,cap_midover,sh_avgvol_o500,sh_price_o50,fa_epsyoy_pos,ta_sma200_pa&ft=4",
+        "pullback": "https://finviz.com/screener.ashx?v=211&f=sec_consumergoods,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_sma50_pb,ta_rsi_os40&ft=4",
+        "breakout": "https://finviz.com/screener.ashx?v=211&f=sec_consumergoods,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_highlow52w_nh&ft=4",
+        "golden_cross": "https://finviz.com/screener.ashx?v=211&f=sec_consumergoods,cap_midover,sh_avgvol_o500,ta_sma200_pa,ta_sma50_pa200,ta_pattern_tlsupport&ft=4",
+        "universe_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_consumergoods,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb&ft=4",
+        "bounce_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_consumergoods,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb,ta_sma50_pa,ta_rsi_ob60&ft=4",
+        "breakdown_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_consumergoods,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb,ta_highlow52w_nl,sh_relvol_o2&ft=4",
+        "death_cross_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_consumergoods,cap_midover,sh_avgvol_o500,ta_sma200_pb,ta_sma50_pb200,ta_pattern_tlresistance&ft=4"
+      },
       "strategy_suitability": {
         "Baseline": {
           "rating": "excellent",
@@ -471,6 +519,16 @@
         "Alt26",
         "Alt28"
       ],
+      "screener_urls": {
+        "universe": "https://finviz.com/screener.ashx?v=211&f=sec_financial,cap_midover,sh_avgvol_o500,sh_price_o50,fa_epsyoy_pos,ta_sma200_pa&ft=4",
+        "pullback": "https://finviz.com/screener.ashx?v=211&f=sec_financial,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_sma50_pb,ta_rsi_os40&ft=4",
+        "breakout": "https://finviz.com/screener.ashx?v=211&f=sec_financial,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_highlow52w_nh&ft=4",
+        "golden_cross": "https://finviz.com/screener.ashx?v=211&f=sec_financial,cap_midover,sh_avgvol_o500,ta_sma200_pa,ta_sma50_pa200,ta_pattern_tlsupport&ft=4",
+        "universe_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_financial,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb&ft=4",
+        "bounce_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_financial,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb,ta_sma50_pa,ta_rsi_ob60&ft=4",
+        "breakdown_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_financial,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb,ta_highlow52w_nl,sh_relvol_o2&ft=4",
+        "death_cross_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_financial,cap_midover,sh_avgvol_o500,ta_sma200_pb,ta_sma50_pb200,ta_pattern_tlresistance&ft=4"
+      },
       "strategy_suitability": {
         "Alt10": {
           "rating": "excellent",
@@ -527,6 +585,16 @@
         "Alt10",
         "Alt26"
       ],
+      "screener_urls": {
+        "universe": "https://finviz.com/screener.ashx?v=211&f=sec_realestate,cap_midover,sh_avgvol_o500,sh_price_o50,fa_epsyoy_pos,ta_sma200_pa&ft=4",
+        "pullback": "https://finviz.com/screener.ashx?v=211&f=sec_realestate,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_sma50_pb,ta_rsi_os40&ft=4",
+        "breakout": "https://finviz.com/screener.ashx?v=211&f=sec_realestate,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_highlow52w_nh&ft=4",
+        "golden_cross": "https://finviz.com/screener.ashx?v=211&f=sec_realestate,cap_midover,sh_avgvol_o500,ta_sma200_pa,ta_sma50_pa200,ta_pattern_tlsupport&ft=4",
+        "universe_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_realestate,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb&ft=4",
+        "bounce_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_realestate,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb,ta_sma50_pa,ta_rsi_ob60&ft=4",
+        "breakdown_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_realestate,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pb,ta_highlow52w_nl,sh_relvol_o2&ft=4",
+        "death_cross_bearish": "https://finviz.com/screener.ashx?v=211&f=sec_realestate,cap_midover,sh_avgvol_o500,ta_sma200_pb,ta_sma50_pb200,ta_pattern_tlresistance&ft=4"
+      },
       "strategy_suitability": {
         "Alt10": {
           "rating": "marginal",

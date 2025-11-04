@@ -47,8 +47,8 @@ func NewNavigator(state *appcore.AppState, window fyne.Window) *Navigator {
 		screens.NewPositionSizing(state, window),
 		screens.NewHeatCheck(state, window),
 		screens.NewTradeEntry(state, window),
-		screens.NewCalendar(state, window),
-		screens.NewTradeManagement(state, window, state.FeatureFlags), // Screen 9: Phase 2 feature
+		screens.NewCalendarWithFlags(state, window, state.FeatureFlags, nav), // Pass feature flags and navigator
+		screens.NewTradeManagement(state, window, state.FeatureFlags),        // Screen 9: Phase 2 feature
 	}
 
 	// Set navigation callbacks on screens that support them

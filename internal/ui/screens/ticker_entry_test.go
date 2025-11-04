@@ -186,15 +186,15 @@ func TestTickerEntry_StrategyFiltering(t *testing.T) {
 		shouldContain string
 	}{
 		{
-			name:          "Healthcare sector - shows all strategies",
+			name:          "Healthcare sector - shows top strategies",
 			sector:        "Healthcare",
-			expectedCount: 9, // Shows ALL strategies with indicators
+			expectedCount: 5,
 			shouldContain: "Alt10",
 		},
 		{
-			name:          "Technology sector - shows all strategies",
+			name:          "Technology sector - shows top strategies",
 			sector:        "Technology",
-			expectedCount: 9, // Shows ALL strategies with indicators
+			expectedCount: 5,
 			shouldContain: "Alt26",
 		},
 	}
@@ -534,7 +534,7 @@ func createTestPolicy() *models.Policy {
 				Blocked:           false,
 				Warning:           false,
 				Notes:             "Best overall sector",
-				AllowedStrategies: []string{"Alt10", "Alt46", "Alt43", "Alt39", "Alt28"},
+				AllowedStrategies: []string{"Alt10", "Alt46", "Alt26", "Alt22", "Alt43"},
 				// Phase 6: Strategy suitability ratings
 				StrategySuitability: map[string]models.StrategySuitability{
 					"Alt10": {
@@ -547,6 +547,24 @@ func createTestPolicy() *models.Policy {
 						Rating:                 "excellent",
 						Color:                  "green",
 						Rationale:              "Healthcare +32.16% with Alt46",
+						RequireAcknowledgement: false,
+					},
+					"Alt43": {
+						Rating:                 "good",
+						Color:                  "green",
+						Rationale:              "Volatility adaptive performs well",
+						RequireAcknowledgement: false,
+					},
+					"Alt39": {
+						Rating:                 "good",
+						Color:                  "green",
+						Rationale:              "Age-based exits stable",
+						RequireAcknowledgement: false,
+					},
+					"Alt28": {
+						Rating:                 "good",
+						Color:                  "green",
+						Rationale:              "ADX filter diagnostic",
 						RequireAcknowledgement: false,
 					},
 					"Alt26": {

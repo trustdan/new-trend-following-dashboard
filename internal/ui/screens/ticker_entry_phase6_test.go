@@ -1,6 +1,7 @@
 package screens
 
 import (
+	"strings"
 	"testing"
 
 	"fyne.io/fyne/v2/test"
@@ -120,35 +121,23 @@ func TestTickerEntry_GetSuitability_NotFound(t *testing.T) {
 	}
 }
 
-// TestTickerEntry_GetColorIndicator tests emoji indicator mapping
+// TestTickerEntry_GetColorIndicator tests color indicator mapping
 func TestTickerEntry_GetColorIndicator(t *testing.T) {
 	tests := []struct {
 		color    string
 		expected string
 	}{
-		{"green", "🟢"},
-		{"yellow", "🟡"},
-		{"red", "🔴"},
-		{"unknown", "⚪"},
+		{"green", "[GREEN]"},
+		{"yellow", "[YELLOW]"},
+		{"red", "[RED]"},
+		{"unknown", "[UNKNOWN]"},
 	}
-
-	// Arrange
-	state := appcore.NewAppState()
-	state.Policy = createTestPolicy()
-
-	window := test.NewWindow(nil)
-	defer window.Close()
-
-	screen := NewTickerEntry(state, window)
 
 	for _, tt := range tests {
 		t.Run(tt.color, func(t *testing.T) {
-			// Act
-			indicator := screen.getColorIndicator(tt.color)
-
-			// Assert
+			indicator := getColorIndicatorText(tt.color)
 			if indicator != tt.expected {
-				t.Errorf("getColorIndicator(%s) = %s, want %s", tt.color, indicator, tt.expected)
+				t.Errorf("getColorIndicatorText(%s) = %s, want %s", tt.color, indicator, tt.expected)
 			}
 		})
 	}
@@ -170,22 +159,54 @@ func TestTickerEntry_GetAllStrategiesWithIndicators(t *testing.T) {
 	strategies := screen.getAllStrategiesWithIndicators()
 
 	// Assert
-	// Should show ALL strategies from policy, not just Healthcare's allowed strategies
-	expectedCount := len(state.Policy.Strategies)
+	expectedCount := 5
 	if len(strategies) != expectedCount {
-		t.Errorf("Expected %d strategies (ALL from policy), got %d", expectedCount, len(strategies))
+		t.Fatalf("Expected %d strategies, got %d", expectedCount, len(strategies))
 	}
 
-	// Check that strategies have color indicators
-	hasGreenIndicator := false
+	var hasGreen, hasYellow, hasRed bool
+	foundAlt10 := false
+	foundAlt26 := false
+	foundAlt22 := false
+
 	for _, s := range strategies {
-		if len(s) > 0 && (s[0:4] == "🟢" || s[0:4] == "🟡" || s[0:4] == "🔴") {
-			hasGreenIndicator = true
-			break
+		if strings.HasPrefix(s, "[GREEN]") {
+			hasGreen = true
+		}
+		if strings.HasPrefix(s, "[YELLOW]") {
+			hasYellow = true
+		}
+		if strings.HasPrefix(s, "[RED]") {
+			hasRed = true
+		}
+		if strings.Contains(s, "Alt10") {
+			foundAlt10 = true
+		}
+		if strings.Contains(s, "Alt26") {
+			foundAlt26 = true
+		}
+		if strings.Contains(s, "Alt22") {
+			foundAlt22 = true
 		}
 	}
-	if !hasGreenIndicator {
-		t.Error("Expected strategies to have color indicators (🟢/🟡/🔴)")
+
+	if !hasGreen {
+		t.Error("Expected at least one [GREEN] strategy")
+	}
+	if !hasYellow {
+		t.Error("Expected at least one [YELLOW] strategy")
+	}
+	if !hasRed {
+		t.Error("Expected at least one [RED] strategy")
+	}
+	if !foundAlt10 {
+		t.Error("Expected Alt10 to be included in dropdown")
+	}
+	if !foundAlt26 {
+		t.Error("Expected Alt26 to be included in dropdown")
+	}
+	if !foundAlt22 {
+		t.Error("Expected Alt22 to be included in dropdown")
 	}
 }
 
@@ -203,7 +224,9 @@ func TestTickerEntry_OnStrategySelected_GreenStrategy(t *testing.T) {
 	screen.Render() // Initialize UI components
 
 	// Act
-	screen.onStrategySelected("🟢 Alt10 - Profit Targets")
+	strategies := screen.getAllStrategiesWithIndicators()
+	alt10 := findStrategyLabel(t, strategies, "Alt10")
+	screen.onStrategySelected(alt10)
 
 	// Assert
 	if state.CurrentTrade.Strategy != "Alt10" {
@@ -243,7 +266,9 @@ func TestTickerEntry_OnStrategySelected_YellowStrategy(t *testing.T) {
 	screen.Render() // Initialize UI components
 
 	// Act
-	screen.onStrategySelected("🟡 Alt26 - Profit Targets + Pyramiding")
+	strategies := screen.getAllStrategiesWithIndicators()
+	alt26 := findStrategyLabel(t, strategies, "Alt26")
+	screen.onStrategySelected(alt26)
 
 	// Assert
 	if state.CurrentTrade.Strategy != "Alt26" {
@@ -286,7 +311,9 @@ func TestTickerEntry_OnStrategySelected_RedStrategy(t *testing.T) {
 	screen.Render() // Initialize UI components
 
 	// Act
-	screen.onStrategySelected("🔴 Alt22 - Parabolic SAR")
+	strategies := screen.getAllStrategiesWithIndicators()
+	alt22 := findStrategyLabel(t, strategies, "Alt22")
+	screen.onStrategySelected(alt22)
 
 	// Assert
 	if state.CurrentTrade.Strategy != "Alt22" {
@@ -326,7 +353,9 @@ func TestTickerEntry_AcknowledgementCheckbox_EnablesContinue(t *testing.T) {
 	screen.Render() // Initialize UI components
 
 	// Select yellow strategy (requires acknowledgement)
-	screen.onStrategySelected("🟡 Alt26 - Profit Targets + Pyramiding")
+	strategies := screen.getAllStrategiesWithIndicators()
+	alt26 := findStrategyLabel(t, strategies, "Alt26")
+	screen.onStrategySelected(alt26)
 
 	// Verify Continue button is initially disabled
 	if !screen.continueBtn.Disabled() {
@@ -357,7 +386,9 @@ func TestTickerEntry_StartCooldown_SetsAcknowledgementFlag(t *testing.T) {
 	screen.Render() // Initialize UI components
 
 	// Select yellow strategy and acknowledge
-	screen.onStrategySelected("🟡 Alt26 - Profit Targets + Pyramiding")
+	strategies := screen.getAllStrategiesWithIndicators()
+	alt26 := findStrategyLabel(t, strategies, "Alt26")
+	screen.onStrategySelected(alt26)
 	screen.ackCheckbox.SetChecked(true)
 	screen.updateContinueButton()
 
@@ -470,4 +501,15 @@ func TestTickerEntry_UpdateContinueButton_Phase6Logic(t *testing.T) {
 			}
 		})
 	}
+}
+
+func findStrategyLabel(t *testing.T, options []string, strategyID string) string {
+	t.Helper()
+	for _, option := range options {
+		if strings.Contains(option, strategyID) {
+			return option
+		}
+	}
+	t.Fatalf("strategy %s not found in options: %v", strategyID, options)
+	return ""
 }

@@ -163,8 +163,10 @@ func (s *SectorSelection) createSectorCard(sector models.Sector) fyne.CanvasObje
 	notesLabel := widget.NewLabel(sector.Notes)
 	notesLabel.Wrapping = fyne.TextWrapWord
 
-	// Strategy count
-	strategyCountLabel := widget.NewLabel(fmt.Sprintf("✓ %d strategies available", len(sector.AllowedStrategies)))
+	// Strategy badges
+	badgeHeader := widget.NewLabel("Top Strategy Fits:")
+	badgeHeader.TextStyle = fyne.TextStyle{Bold: true}
+	badgeList := buildCompactStrategyList(s.state.Policy, sector, 5)
 
 	// Status indicator
 	var statusLabel *widget.Label
@@ -221,7 +223,8 @@ func (s *SectorSelection) createSectorCard(sector models.Sector) fyne.CanvasObje
 	cardContent := container.NewVBox(
 		nameLabel,
 		notesLabel,
-		strategyCountLabel,
+		badgeHeader,
+		badgeList,
 		statusLabel,
 		selectBtn,
 	)
