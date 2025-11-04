@@ -391,7 +391,11 @@ func (s *Checklist) createNavigationButtons() fyne.CanvasObject {
 // updateValidation updates the continue button state and validation message
 func (s *Checklist) updateValidation() {
 	isValid := s.Validate()
-	s.continueBtn.Disabled = !isValid
+	if isValid {
+		s.continueBtn.Enable()
+	} else {
+		s.continueBtn.Disable()
+	}
 
 	if !isValid {
 		// Build specific error message

@@ -112,8 +112,8 @@ func TestTickerEntry_SetNavCallbacks(t *testing.T) {
 
 	// Act
 	screen.SetNavCallbacks(
-		func() { nextCalled = true },
-		func() { backCalled = true },
+		func() error { nextCalled = true; return nil },
+		func() error { backCalled = true; return nil },
 		func() { cancelCalled = true },
 	)
 
@@ -402,7 +402,7 @@ func TestTickerEntry_StartCooldown(t *testing.T) {
 
 	nextCalled := false
 	screen.SetNavCallbacks(
-		func() { nextCalled = true },
+		func() error { nextCalled = true; return nil },
 		nil,
 		nil,
 	)
@@ -441,7 +441,7 @@ func TestTickerEntry_StartCooldown_InvalidData(t *testing.T) {
 
 	nextCalled := false
 	screen.SetNavCallbacks(
-		func() { nextCalled = true },
+		func() error { nextCalled = true; return nil },
 		nil,
 		nil,
 	)
