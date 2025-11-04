@@ -5,7 +5,7 @@
   "app_min_version": "2.0.0",
   "security": {
     "signature_alg": "sha256",
-    "signature": "7ef21fd46924584a5f1300128337b22cf064317694f8dfbd23144fcaa228e00c",
+    "signature": "edb876e707187327681ceaf651d2a1e9ca2145c773a36ac2437a8b3c4ff7f264",
     "enforce_hash": true,
     "on_hash_mismatch": "safe_mode"
   },
@@ -580,6 +580,12 @@
       "heat_cap_percent": 0.0,
       "notes": "Mean-reverting; trend-following weak. Prefer no trades until a mean-reversion system exists.",
       "allowed_strategies": [],
+      "screener_urls": {
+        "universe": "https://finviz.com/screener.ashx?v=211&f=sec_energy,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa&ft=4",
+        "pullback": "https://finviz.com/screener.ashx?v=211&f=sec_energy,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_sma50_pb,ta_rsi_os40&ft=4",
+        "breakout": "https://finviz.com/screener.ashx?v=211&f=sec_energy,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_highlow52w_nh&ft=4",
+        "golden_cross": "https://finviz.com/screener.ashx?v=211&f=sec_energy,cap_midover,sh_avgvol_o500,ta_sma200_pa,ta_sma50_pa200,ta_pattern_tlsupport&ft=4"
+      },
       "strategy_suitability": {
         "Alt10": {
           "rating": "incompatible",
@@ -651,6 +657,12 @@
       "heat_cap_percent": 0.0,
       "notes": "Zero profitable strategies across tests. Only trade strong directional moves or obvious range-bound edges.",
       "allowed_strategies": [],
+      "screener_urls": {
+        "universe": "https://finviz.com/screener.ashx?v=211&f=sec_utilities,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa&ft=4",
+        "pullback": "https://finviz.com/screener.ashx?v=211&f=sec_utilities,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_sma50_pb,ta_rsi_os40&ft=4",
+        "breakout": "https://finviz.com/screener.ashx?v=211&f=sec_utilities,cap_midover,sh_avgvol_o500,sh_price_o50,ta_sma200_pa,ta_highlow52w_nh&ft=4",
+        "golden_cross": "https://finviz.com/screener.ashx?v=211&f=sec_utilities,cap_midover,sh_avgvol_o500,ta_sma200_pa,ta_sma50_pa200,ta_pattern_tlsupport&ft=4"
+      },
       "strategy_suitability": {
         "Alt10": {
           "rating": "incompatible",

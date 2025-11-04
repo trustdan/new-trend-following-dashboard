@@ -186,6 +186,10 @@ func TestNewCooldownTimerFromTime_PartiallyComplete(t *testing.T) {
 }
 
 func TestCooldownTimer_MultipleStopCalls_NoError(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping timing-sensitive cooldown timer test in short mode")
+	}
+
 	timer := NewCooldownTimer(5*time.Second, nil)
 
 	// Multiple stop calls should not cause issues

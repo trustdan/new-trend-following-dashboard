@@ -123,10 +123,11 @@ The app guides users through a sequential decision process. Progress auto-saves 
 ### Screen 1: Sector Selection
 **Purpose:** Choose which market sector to trade
 **Logic:** Present sectors from policy.json, sorted by priority
-**Constraints:**
-- Grey out blocked sectors (e.g., Utilities with 0% backtest success)
+**Constraints (Phase 6 Updated):**
+- Show warning modal for Utilities (0% backtest success) requiring acknowledgement
 - Show warning icon for marginal sectors (Energy, Real Estate)
 - Display sector notes from policy (e.g., "Healthcare: 92% strategy success")
+- All sectors are selectable after user acknowledges any warnings
 
 ### Screen 2: Screener Results
 **Purpose:** Launch Finviz screeners to find trade candidates
@@ -139,15 +140,19 @@ The app guides users through a sequential decision process. Progress auto-saves 
 
 **Implementation Note:** URLs open in default browser with `v=211` parameter for chart view
 
-### Screen 3: Ticker Entry & Strategy Selection
+### Screen 3: Ticker Entry & Strategy Selection (Phase 6 Updated)
 **Purpose:** Enter ticker symbol and select matching strategy
 **Logic:**
 1. User types ticker (e.g., "UNH", "MSFT")
-2. Dropdown populates with ONLY strategies allowed for the selected sector (from `allowed_strategies` array in policy.json)
-3. Display strategy metadata: label, options suitability, typical hold weeks
-4. Start 120-second anti-impulsivity cooldown when user proceeds
+2. Dropdown shows ALL strategies with color-coded suitability indicators:
+   - 🟢 Green: Excellent/Good for this sector (no warning)
+   - 🟡 Yellow: Marginal for this sector (requires acknowledgement)
+   - 🔴 Red: Incompatible with this sector (requires strong acknowledgement)
+3. Display strategy metadata: label, options suitability, typical hold weeks, and rationale
+4. If yellow/red selected: Show warning banner + acknowledgement checkbox (Continue button disabled until checked)
+5. Start 120-second anti-impulsivity cooldown when user proceeds
 
-**Critical:** Strategy dropdown is sector-filtered. Healthcare shows different strategies than Technology.
+**Critical (Phase 6):** ALL strategies are shown with color indicators. User flexibility is preserved, but warnings make research-based guardrails visible.
 
 ### Screen 4: Anti-Impulsivity Checklist
 **Purpose:** Force deliberate decision-making through required criteria
@@ -423,53 +428,67 @@ User must consciously check 5 required criteria. Acts as a "pre-flight checklist
 #### Layer 3: Portfolio Heat Limits
 Mathematical constraints that prevent overconcentration. Even if user *wants* to overweight a sector, the app blocks it. Removes willpower from the equation.
 
-#### Layer 4: Sector Blacklisting
-Utilities sector completely blocked based on 0% backtest success rate. App won't even show strategy dropdown for blocked sectors. Prevents users from "trying anyway" against data.
+#### Layer 4: Warning-Based Guardrails (Phase 6)
+Utilities sector shows a strong warning modal based on 0% backtest success rate. All strategies for Utilities are marked red (incompatible). Users can proceed after explicit acknowledgement. This preserves user autonomy while making research-based risks crystal clear.
 
 **Design Philosophy:** Don't rely on trader discipline—engineer discipline into the workflow.
 
 ---
 
-## SECTOR-STRATEGY MAPPING LOGIC
+## SECTOR-STRATEGY MAPPING LOGIC (Phase 6 Updated)
 
-### How Strategy Filtering Works
+### How Strategy Suitability Works
 
-When user selects a sector in Screen 1, the app remembers this choice. When user reaches Screen 3 (Strategy Selection), the dropdown is populated from:
+**Phase 6 Change:** The app now shows ALL strategies with color-coded suitability ratings instead of filtering.
+
+When user selects a sector in Screen 1, the app remembers this choice. When user reaches Screen 3 (Strategy Selection), the dropdown shows ALL strategies with color indicators:
 
 ```go
-// Pseudocode
+// Phase 6 Pseudocode
 selectedSector := userChoice // "Healthcare"
 policy := loadPolicy("data/policy.v1.json")
 
-for _, sector := range policy.Sectors {
-    if sector.Name == selectedSector {
-        allowedStrategies := sector.AllowedStrategies
-        // allowedStrategies = ["Alt10", "Alt46", "Alt43", "Alt39", "Alt28"]
+// Show ALL strategies from policy
+for stratID, strategy := range policy.Strategies {
+    // Get suitability rating for this sector/strategy combination
+    suitability := getSuitability(stratID, selectedSector)
+    // suitability = {Rating: "excellent", Color: "green", Rationale: "Healthcare +33.13% with Alt10"}
 
-        // Populate dropdown with only these strategies
-        for _, stratID := range allowedStrategies {
-            strategy := policy.Strategies[stratID]
-            dropdown.Add(strategy.Label) // "Profit Targets (3N/6N/9N)"
-        }
-    }
+    indicator := getColorIndicator(suitability.Color) // "🟢"
+
+    // Format: "🟢 Alt10 - Profit Targets (3N/6N/9N)"
+    dropdown.Add(fmt.Sprintf("%s %s - %s", indicator, stratID, strategy.Label))
 }
 ```
 
-### Why This Mapping Matters
+**Key Benefit:** User sees full context of ALL strategies and can make informed decisions with clear warning indicators.
+
+### Why Suitability Ratings Matter (Phase 6)
 
 Research proved that strategy performance is sector-dependent:
-- **Healthcare:** Alt10 +33.13%, Alt46 +32.16% (excellent)
-- **Utilities:** Alt10 -12.4%, Alt46 -6.2% (catastrophic)
+- **Healthcare:** Alt10 +33.13%, Alt46 +32.16% (🟢 excellent/green)
+- **Utilities:** Alt10 -12.4%, Alt46 -6.2% (🔴 incompatible/red)
 
-If the app allowed Alt10 on Utilities, users would lose money despite "following the system." The policy.json enforces data-driven constraints.
+**Phase 6 Approach:** Instead of hard-blocking Alt10 on Utilities, the app:
+1. Shows Alt10 for Utilities with 🔴 red indicator
+2. Displays warning: "Utilities -12.4% with Alt10 (mean-reverting sector incompatible with profit targets)"
+3. Requires explicit acknowledgement checkbox: "I acknowledge this strategy is incompatible for this sector and understand the risks"
+4. Logs the warning override for future analysis
 
-### Updating Strategy Mappings
+This preserves user autonomy while making research-based risks impossible to miss.
+
+### Updating Strategy Suitability Ratings (Phase 6)
 
 When new backtest data becomes available:
 1. Run backtests for new sector/strategy combination
-2. If strategy achieves >60% success rate, add to `allowed_strategies` array
-3. Update policy.v1.json
-4. App automatically reflects changes on next launch (no code changes needed)
+2. Classify based on performance:
+   - **Excellent/Good (green):** >20% returns, >70% success rate
+   - **Marginal (yellow):** 5-20% returns, 50-70% success rate
+   - **Incompatible (red):** <5% returns or <50% success rate
+3. Update `strategy_suitability` map in policy.v1.json for that sector
+4. Set `require_acknowledgement: true` for yellow/red ratings
+5. Add clear rationale explaining the rating (shown in warning banner)
+6. App automatically reflects changes on next launch (no code changes needed)
 
 ---
 
