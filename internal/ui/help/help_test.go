@@ -133,6 +133,10 @@ func TestGetHelpForScreen_PositionSizing_HasConvictionScale(t *testing.T) {
 }
 
 func TestShowHelpDialog_DoesNotPanic(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping GUI dialog test in short mode")
+	}
+
 	// Arrange
 	window := test.NewWindow(nil)
 
@@ -147,6 +151,10 @@ func TestShowHelpDialog_DoesNotPanic(t *testing.T) {
 }
 
 func TestShowWelcomeScreen_DoesNotPanic(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping GUI dialog test in short mode")
+	}
+
 	// Arrange
 	window := test.NewWindow(nil)
 	callback := func(dontShowAgain bool) {

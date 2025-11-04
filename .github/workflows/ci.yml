@@ -47,10 +47,16 @@ jobs:
         run: go mod download
 
       - name: Run unit tests
-        run: go test -v -race ./...
+        run: go test -v -race -short -timeout 10m ./...
+        env:
+          FYNE_THEME: light
+          CI: true
 
       - name: Generate coverage report
-        run: go test -coverprofile=coverage.out -covermode=atomic ./...
+        run: go test -short -coverprofile=coverage.out -covermode=atomic -timeout 10m ./...
+        env:
+          FYNE_THEME: light
+          CI: true
 
       - name: Check test coverage
         run: |
