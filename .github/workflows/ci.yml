@@ -72,6 +72,11 @@ jobs:
         with:
           go-version: '1.21'
 
+      - name: Install Fyne dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev xorg-dev
+
       - name: Run go fmt
         run: |
           if [ -n "$(gofmt -s -l .)" ]; then
