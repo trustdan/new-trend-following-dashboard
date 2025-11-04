@@ -47,7 +47,10 @@ jobs:
         run: go mod download
 
       - name: Run unit tests
-        run: go test -v -race -coverprofile=coverage.out ./...
+        run: go test -v -race ./...
+
+      - name: Generate coverage report
+        run: go test -coverprofile=coverage.out -covermode=atomic ./...
 
       - name: Check test coverage
         run: |
