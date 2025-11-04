@@ -34,7 +34,9 @@
       "Bash(cmd.exe /c \"build.bat\")",
       "Bash(nul)",
       "Bash(start disttf-engine.exe)",
-      "Bash(__NEW_LINE__ echo \"=== FINAL ROOT DIRECTORY CONTENTS ===\")"
+      "Bash(__NEW_LINE__ echo \"=== FINAL ROOT DIRECTORY CONTENTS ===\")",
+      "Bash(.build.bat)",
+      "Bash(start tf-engine.exe)"
     ],
     "deny": [],
     "ask": []

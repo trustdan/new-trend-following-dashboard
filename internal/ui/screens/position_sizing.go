@@ -30,6 +30,8 @@ type PositionSizing struct {
 	multiplierLabel  *widget.Label
 	calculatedRisk   *widget.Label
 	explanationLabel *widget.Label
+	warningBanner    *fyne.Container
+	warningLabel     *widget.Label
 	continueBtn      *widget.Button
 }
 
@@ -85,9 +87,14 @@ func (s *PositionSizing) Render() fyne.CanvasObject {
 	// Navigation buttons
 	navButtons := s.createNavigationButtons()
 
+	// Warning banner (initially hidden)
+	s.warningBanner = s.createWarningBanner()
+	s.warningBanner.Hide()
+
 	// Scrollable content
 	scrollContent := container.NewVBox(
 		infoBanner,
+		s.warningBanner,
 		form,
 	)
 
@@ -149,6 +156,31 @@ func (s *PositionSizing) createInfoBanner() fyne.CanvasObject {
 		bg,
 		container.NewPadded(content),
 	)
+}
+
+// createWarningBanner creates a warning banner for heat limit violations
+func (s *PositionSizing) createWarningBanner() *fyne.Container {
+	bg := canvas.NewRectangle(color.RGBA{R: 255, G: 100, B: 100, A: 255})
+
+	icon := widget.NewIcon(theme.WarningIcon())
+
+	s.warningLabel = widget.NewLabel("")
+	s.warningLabel.Wrapping = fyne.TextWrapWord
+	s.warningLabel.TextStyle = fyne.TextStyle{Bold: true}
+
+	content := container.NewBorder(
+		nil, nil,
+		container.NewPadded(icon),
+		nil,
+		container.NewPadded(s.warningLabel),
+	)
+
+	banner := container.NewStack(
+		bg,
+		container.NewPadded(content),
+	)
+
+	return banner
 }
 
 // createForm creates the main position sizing form
@@ -289,6 +321,9 @@ func (s *PositionSizing) createResultsSection() fyne.CanvasObject {
 	// Initial calculation
 	s.updateCalculation()
 
+	// Save initial values to trade if not already set
+	s.saveInitialValues()
+
 	resultCard := container.NewVBox(
 		s.calculatedRisk,
 		s.explanationLabel,
@@ -417,6 +452,64 @@ func (s *PositionSizing) updateCalculation() {
 		"Base risk: $%.2f (%.2f%% of $%.0f) × %.2f× conviction multiplier = $%.2f total risk",
 		baseRisk, riskPercent, account, multiplier, adjustedRisk,
 	))
+
+	// Check if position size exceeds sector heat cap
+	s.checkHeatLimits(account, adjustedRisk)
+}
+
+// checkHeatLimits validates if the position size would exceed sector heat caps
+func (s *PositionSizing) checkHeatLimits(accountSize, riskAmount float64) {
+	if s.state.CurrentTrade == nil || accountSize <= 0 {
+		return
+	}
+
+	// Calculate risk as percentage of account
+	riskPercent := riskAmount / accountSize
+
+	// Get sector cap for current sector
+	sectorCap := s.getSectorCap(s.state.CurrentTrade.Sector)
+
+	// Check if risk exceeds sector cap
+	if riskPercent > sectorCap {
+		// Show warning banner
+		if s.warningLabel != nil {
+			s.warningLabel.SetText(fmt.Sprintf(
+				"⚠️ Position Size Exceeds Sector Cap!\n\n"+
+					"Your position risk (%.2f%%) exceeds the %s sector cap (%.2f%%).\n"+
+					"Reduce your position size or use a lower conviction rating.\n\n"+
+					"Suggestion: Lower conviction to 5 (0.5× multiplier) or reduce risk per trade.",
+				riskPercent*100,
+				s.state.CurrentTrade.Sector,
+				sectorCap*100,
+			))
+		}
+		if s.warningBanner != nil {
+			s.warningBanner.Show()
+			s.warningBanner.Refresh()
+		}
+	} else {
+		// Hide warning banner if within limits
+		if s.warningBanner != nil {
+			s.warningBanner.Hide()
+		}
+	}
+}
+
+// getSectorCap returns the heat cap for a specific sector
+func (s *PositionSizing) getSectorCap(sectorName string) float64 {
+	// Find sector in policy
+	for _, sector := range s.state.Policy.Sectors {
+		if sector.Name == sectorName {
+			// Use sector-specific cap if available, otherwise use default bucket cap
+			if sector.HeatCapPercent > 0 {
+				return sector.HeatCapPercent
+			}
+			return s.state.Policy.Defaults.BucketHeatCap
+		}
+	}
+
+	// Default fallback
+	return s.state.Policy.Defaults.BucketHeatCap
 }
 
 // getSelectedConviction returns the currently selected conviction level (5-8)
@@ -451,6 +544,52 @@ func (s *PositionSizing) updateContinueButton() {
 	} else {
 		s.continueBtn.Disable()
 	}
+}
+
+// saveInitialValues saves the initial/default values to the trade on first render
+func (s *PositionSizing) saveInitialValues() {
+	if s.state.CurrentTrade == nil {
+		return
+	}
+
+	// If conviction not set, save the default (7)
+	if s.state.CurrentTrade.Conviction < 5 || s.state.CurrentTrade.Conviction > 8 {
+		conviction := s.getSelectedConviction()
+		if conviction >= 5 && conviction <= 8 {
+			s.state.CurrentTrade.Conviction = conviction
+			s.state.CurrentTrade.SizingMultiplier = s.getMultiplier(conviction)
+		}
+	}
+
+	// If account equity not set, save the displayed value
+	if s.state.CurrentTrade.AccountEquity <= 0 {
+		if accountStr := s.accountEntry.Text; accountStr != "" {
+			if account, err := strconv.ParseFloat(accountStr, 64); err == nil && account > 0 {
+				s.state.CurrentTrade.AccountEquity = account
+			}
+		}
+	}
+
+	// If risk per trade not set, save the displayed value
+	if s.state.CurrentTrade.RiskPerTrade <= 0 {
+		if riskStr := s.riskPercentEntry.Text; riskStr != "" {
+			if riskPercent, err := strconv.ParseFloat(riskStr, 64); err == nil && riskPercent > 0 {
+				s.state.CurrentTrade.RiskPerTrade = riskPercent / 100.0 // Store as decimal
+			}
+		}
+	}
+
+	// Calculate and save max loss if all values are present
+	if s.state.CurrentTrade.Conviction >= 5 &&
+		s.state.CurrentTrade.AccountEquity > 0 &&
+		s.state.CurrentTrade.RiskPerTrade > 0 &&
+		s.state.CurrentTrade.SizingMultiplier > 0 {
+		baseRisk := s.state.CurrentTrade.AccountEquity * s.state.CurrentTrade.RiskPerTrade
+		s.state.CurrentTrade.MaxLoss = baseRisk * s.state.CurrentTrade.SizingMultiplier
+	}
+
+	// Update continue button state
+	s.updateContinueButton()
 }
 
 // savePositionSizing saves the position sizing data to the trade

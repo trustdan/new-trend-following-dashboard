@@ -11,8 +11,8 @@
   },
   "defaults": {
     "portfolio_heat_cap": 0.04,
-    "bucket_heat_cap": 0.015,
-    "risk_per_trade": 0.0075,
+    "bucket_heat_cap": 0.03,
+    "risk_per_trade": 0.02,
     "cooldown_seconds": 300,
     "chart_view_param": "v=211"
   },
@@ -34,7 +34,7 @@
       "priority": 1,
       "blocked": false,
       "warning": false,
-      "heat_cap_percent": 0.015,
+      "heat_cap_percent": 0.03,
       "notes": "Best overall; clean trends; options-friendly holds.",
       "allowed_strategies": [
         "Alt10",
@@ -127,7 +127,7 @@
       "priority": 2,
       "blocked": false,
       "warning": false,
-      "heat_cap_percent": 0.015,
+      "heat_cap_percent": 0.03,
       "notes": "Strong momentum; tech mega-caps + QQQ.",
       "allowed_strategies": [
         "Alt26",
@@ -220,7 +220,7 @@
       "priority": 3,
       "blocked": false,
       "warning": false,
-      "heat_cap_percent": 0.015,
+      "heat_cap_percent": 0.03,
       "notes": "Explosive names (AMZN); use Alt10/Alt26/Alt9.",
       "allowed_strategies": [
         "Alt10",
@@ -293,7 +293,7 @@
       "priority": 3,
       "blocked": false,
       "warning": false,
-      "heat_cap_percent": 0.015,
+      "heat_cap_percent": 0.03,
       "notes": "CAT shines; Alt10 and Alt26 strong.",
       "allowed_strategies": [
         "Alt10",
@@ -366,7 +366,7 @@
       "priority": 3,
       "blocked": false,
       "warning": false,
-      "heat_cap_percent": 0.015,
+      "heat_cap_percent": 0.03,
       "notes": "GOOGL good with SAR and fractional.",
       "allowed_strategies": [
         "Alt22",
@@ -439,7 +439,7 @@
       "priority": 3,
       "blocked": false,
       "warning": false,
-      "heat_cap_percent": 0.015,
+      "heat_cap_percent": 0.03,
       "notes": "WMT trends; baseline/Alt26/Alt10 work.",
       "allowed_strategies": [
         "Baseline",
@@ -512,7 +512,7 @@
       "priority": 4,
       "blocked": false,
       "warning": false,
-      "heat_cap_percent": 0.015,
+      "heat_cap_percent": 0.03,
       "notes": "Mixed; profit targets + fractional.",
       "allowed_strategies": [
         "Alt10",
@@ -579,7 +579,7 @@
       "priority": 4,
       "blocked": false,
       "warning": true,
-      "heat_cap_percent": 0.01,
+      "heat_cap_percent": 0.02,
       "notes": "PLD okay; XLRE fails—treat with caution.",
       "allowed_strategies": [
         "Alt10",

@@ -287,8 +287,8 @@ func TestHeatLimitEnforcement(t *testing.T) {
 
 	// Add trades that bring Healthcare to the sector cap
 	state.AllTrades = []models.Trade{
-		{Ticker: "JNJ", Sector: "Healthcare", Risk: 400, Status: "active"},   // 0.8%
-		{Ticker: "ABBV", Sector: "Healthcare", Risk: 350, Status: "active"},  // 0.7%
+		{Ticker: "JNJ", Sector: "Healthcare", Risk: 400, Status: "active"},  // 0.8%
+		{Ticker: "ABBV", Sector: "Healthcare", Risk: 350, Status: "active"}, // 0.7%
 		// Total: 1.5% (exactly at cap)
 	}
 
@@ -329,10 +329,10 @@ func TestHeatLimitEnforcement(t *testing.T) {
 
 	// Add trades across multiple sectors that approach portfolio cap
 	state.AllTrades = []models.Trade{
-		{Ticker: "UNH", Sector: "Healthcare", Risk: 500, Status: "active"},     // 1.0%
-		{Ticker: "MSFT", Sector: "Technology", Risk: 600, Status: "active"},    // 1.2%
-		{Ticker: "CAT", Sector: "Industrials", Risk: 550, Status: "active"},    // 1.1%
-		{Ticker: "JPM", Sector: "Financials", Risk: 350, Status: "active"},     // 0.7%
+		{Ticker: "UNH", Sector: "Healthcare", Risk: 500, Status: "active"},  // 1.0%
+		{Ticker: "MSFT", Sector: "Technology", Risk: 600, Status: "active"}, // 1.2%
+		{Ticker: "CAT", Sector: "Industrials", Risk: 550, Status: "active"}, // 1.1%
+		{Ticker: "JPM", Sector: "Financials", Risk: 350, Status: "active"},  // 0.7%
 		// Total: 4.0% (exactly at portfolio cap)
 	}
 

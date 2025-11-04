@@ -238,7 +238,7 @@ func TestScreenerLaunch_LaunchURL_Tracking(t *testing.T) {
 
 	// Note: This will attempt to open the URL but won't fail the test
 	// We're mainly testing that the tracking works
-	screen.launchURL("universe", testURL)
+	screen.launchURL("universe", testURL, "bullish")
 
 	// Verify timestamp was recorded
 	if lastRun, exists := screen.lastLaunch["universe"]; exists {
@@ -270,6 +270,7 @@ func TestScreenerLaunch_CreateScreenerCard(t *testing.T) {
 		"Weekly",
 		"Test purpose",
 		"https://finviz.com/screener.ashx?v=211",
+		"bullish",
 	)
 
 	if card == nil {

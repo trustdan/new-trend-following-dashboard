@@ -32,7 +32,7 @@ type Checklist struct {
 	validationMsg  *widget.Label
 }
 
-// ChecklistLabels maps policy IDs to human-readable labels and descriptions
+// ChecklistLabels maps policy IDs to human-readable labels and descriptions (BULLISH version)
 var ChecklistLabels = map[string]struct {
 	Label       string
 	Description string
@@ -62,6 +62,47 @@ var ChecklistLabels = map[string]struct {
 	"REGIME_OK": {
 		Label:       "Market Regime Favorable",
 		Description: "SPY/QQQ above SMA200, sector strength confirmed in universe screener",
+	},
+	"NO_CHASE": {
+		Label:       "Not Chasing Price",
+		Description: "Entry within acceptable distance from signal (not late to party)",
+	},
+	"JOURNAL_DONE": {
+		Label:       "Trade Documented",
+		Description: "Entry rationale and setup notes captured in trading journal",
+	},
+}
+
+// ChecklistLabelsBearish maps policy IDs to human-readable labels and descriptions (BEARISH version)
+var ChecklistLabelsBearish = map[string]struct {
+	Label       string
+	Description string
+}{
+	// Required items
+	"SIG_REQ": {
+		Label:       "Signal Requirements Met",
+		Description: "Price below SMA200 with confirmed Donchian breakdown or strategy-specific entry signal",
+	},
+	"RISK_REQ": {
+		Label:       "Risk Parameters Acceptable",
+		Description: "Stop-loss placement is acceptable for account size and risk tolerance",
+	},
+	"OPT_REQ": {
+		Label:       "Options Alignment Verified",
+		Description: "Strategy hold duration matches options expiration window (avoid theta decay)",
+	},
+	"EXIT_REQ": {
+		Label:       "Exit Plan Defined",
+		Description: "Clear profit targets and stop-loss levels defined before entry",
+	},
+	"BEHAV_REQ": {
+		Label:       "Behavioral Check Passed",
+		Description: "Emotionally calm, not chasing price, following systematic process",
+	},
+	// Optional items
+	"REGIME_OK": {
+		Label:       "Market Regime Favorable",
+		Description: "SPY/QQQ below SMA200, sector weakness confirmed in universe screener",
 	},
 	"NO_CHASE": {
 		Label:       "Not Chasing Price",
@@ -320,7 +361,13 @@ func (s *Checklist) createOptionalSection() fyne.CanvasObject {
 
 // createChecklistItem creates a single checklist item with label and description
 func (s *Checklist) createChecklistItem(itemID string, required bool) fyne.CanvasObject {
-	labelInfo, exists := ChecklistLabels[itemID]
+	// Select appropriate label set based on trade direction
+	labels := ChecklistLabels // Default to bullish
+	if s.state.CurrentTrade != nil && s.state.CurrentTrade.Direction == "bearish" {
+		labels = ChecklistLabelsBearish
+	}
+
+	labelInfo, exists := labels[itemID]
 	if !exists {
 		labelInfo = struct {
 			Label       string

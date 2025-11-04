@@ -1,0 +1,9 @@
+{
+  "theme_mode": "night",
+  "account_equity": 25000,
+  "risk_per_trade": 0.02,
+  "portfolio_heat_cap": 0.04,
+  "bucket_heat_cap": 0.03,
+  "vimium_enabled": false,
+  "sample_data_mode": false
+}

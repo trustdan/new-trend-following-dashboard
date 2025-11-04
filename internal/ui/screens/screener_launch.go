@@ -334,7 +334,7 @@ func (s *ScreenerLaunch) createScreenerCard(key, title, description, frequency, 
 
 	// Launch button
 	launchBtn := widget.NewButton("🔗 Open in Browser", func() {
-		s.launchURL(key, screenerURL)
+		s.launchURL(key, screenerURL, direction)
 	})
 	launchBtn.Importance = widget.HighImportance
 
@@ -377,7 +377,7 @@ func (s *ScreenerLaunch) createScreenerCard(key, title, description, frequency, 
 }
 
 // launchURL opens a FINVIZ screener URL in the default browser
-func (s *ScreenerLaunch) launchURL(key, rawURL string) {
+func (s *ScreenerLaunch) launchURL(key, rawURL, direction string) {
 	// Parse and validate URL
 	parsedURL, err := url.Parse(rawURL)
 	if err != nil {
@@ -420,6 +420,11 @@ func (s *ScreenerLaunch) launchURL(key, rawURL string) {
 				s.showError(fmt.Sprintf("Failed to open URL: %v", err))
 				return
 			}
+		}
+
+		// Store direction in current trade for direction-aware checklist
+		if s.state.CurrentTrade != nil {
+			s.state.CurrentTrade.Direction = direction
 		}
 
 		// Record launch time

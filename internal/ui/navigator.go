@@ -5,10 +5,12 @@ import (
 	"fmt"
 
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 
 	"tf-engine/internal/appcore"
 	"tf-engine/internal/storage"
+	"tf-engine/internal/ui/components"
 	"tf-engine/internal/ui/help"
 	"tf-engine/internal/ui/screens"
 )
@@ -22,11 +24,13 @@ type Screen interface {
 
 // Navigator manages screen transitions and workflow state
 type Navigator struct {
-	screens      []Screen
-	currentIndex int
-	history      []int
-	state        *appcore.AppState
-	window       fyne.Window
+	screens         []Screen
+	currentIndex    int
+	history         []int
+	state           *appcore.AppState
+	window          fyne.Window
+	topBar          *components.TopBar
+	referenceViewer *components.ReferenceViewer
 }
 
 // NewNavigator creates a new navigator with all 9 screens (8 workflow + 1 management)
@@ -37,6 +41,18 @@ func NewNavigator(state *appcore.AppState, window fyne.Window) *Navigator {
 		state:        state,
 		window:       window,
 	}
+
+	// Initialize reference viewer
+	nav.referenceViewer = components.NewReferenceViewer(window)
+
+	// Initialize top bar with navigation callbacks
+	nav.topBar = components.NewTopBar(
+		state,
+		window,
+		nav.NavigateToSettings,
+		nav.JumpToCalendar,
+		nav.ShowReference,
+	)
 
 	// Initialize all screens (8 workflow screens + trade management)
 	nav.screens = []Screen{
@@ -95,8 +111,9 @@ func (n *Navigator) Next() error {
 	// Update state
 	n.state.CurrentScreen = n.GetCurrentScreenName()
 
-	// Render new screen
-	n.window.SetContent(n.screens[n.currentIndex].Render())
+	// Render new screen with top bar
+	content := n.screens[n.currentIndex].Render()
+	n.window.SetContent(n.wrapWithTopBar(content))
 
 	return nil
 }
@@ -123,7 +140,8 @@ func (n *Navigator) Back() error {
 	if n.currentIndex == -1 {
 		n.NavigateToDashboard()
 	} else {
-		n.window.SetContent(n.screens[n.currentIndex].Render())
+		content := n.screens[n.currentIndex].Render()
+		n.window.SetContent(n.wrapWithTopBar(content))
 	}
 
 	return nil
@@ -156,8 +174,9 @@ func (n *Navigator) JumpToCalendar() {
 	n.currentIndex = 7
 	n.state.CurrentScreen = "calendar"
 
-	// Render calendar
-	n.window.SetContent(n.screens[7].Render())
+	// Render calendar with top bar
+	content := n.screens[7].Render()
+	n.window.SetContent(n.wrapWithTopBar(content))
 }
 
 // JumpToTradeManagement navigates directly to trade management screen
@@ -172,8 +191,9 @@ func (n *Navigator) JumpToTradeManagement() {
 	n.currentIndex = 8
 	n.state.CurrentScreen = "trade_management"
 
-	// Render trade management
-	n.window.SetContent(n.screens[8].Render())
+	// Render trade management with top bar
+	content := n.screens[8].Render()
+	n.window.SetContent(n.wrapWithTopBar(content))
 }
 
 // NavigateToDashboard returns to the main dashboard
@@ -184,7 +204,8 @@ func (n *Navigator) NavigateToDashboard() {
 
 	// Render dashboard (pass navigator so dashboard can navigate to screens)
 	dashboard := NewDashboard(n.state, n.window, n)
-	n.window.SetContent(dashboard.Render())
+	content := dashboard.Render()
+	n.window.SetContent(n.wrapWithTopBar(content))
 }
 
 // NavigateToScreen jumps directly to a specific screen by index
@@ -204,7 +225,8 @@ func (n *Navigator) NavigateToScreen(index int) error {
 	// Navigate to screen
 	n.currentIndex = index
 	n.state.CurrentScreen = n.GetCurrentScreenName()
-	n.window.SetContent(n.screens[n.currentIndex].Render())
+	content := n.screens[n.currentIndex].Render()
+	n.window.SetContent(n.wrapWithTopBar(content))
 
 	return nil
 }
@@ -261,4 +283,40 @@ func (n *Navigator) ClearHistory() {
 func (n *Navigator) ShowHelp() {
 	screenName := n.GetCurrentScreenName()
 	help.ShowHelpDialog(screenName, n.window)
+}
+
+// wrapWithTopBar wraps screen content with the top navigation bar
+func (n *Navigator) wrapWithTopBar(content fyne.CanvasObject) fyne.CanvasObject {
+	return container.NewBorder(
+		n.topBar.Render(), // Top
+		nil,               // Bottom
+		nil,               // Left
+		nil,               // Right
+		content,           // Center
+	)
+}
+
+// NavigateToSettings navigates to the settings screen
+func (n *Navigator) NavigateToSettings() {
+	// Auto-save current progress
+	n.AutoSave()
+
+	// Remember where we came from
+	n.history = append(n.history, n.currentIndex)
+
+	// Create and show settings screen
+	settingsScreen := screens.NewSettings(n.state, n.window)
+	n.currentIndex = -2 // Special index for settings (not in main workflow)
+	n.state.CurrentScreen = "settings"
+
+	// Render settings with top bar
+	content := settingsScreen.Render()
+	n.window.SetContent(n.wrapWithTopBar(content))
+}
+
+// ShowReference displays the requested reference material
+func (n *Navigator) ShowReference(refType string) {
+	if n.referenceViewer != nil {
+		n.referenceViewer.ShowReference(refType)
+	}
 }

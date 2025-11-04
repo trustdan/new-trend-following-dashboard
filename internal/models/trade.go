@@ -13,6 +13,9 @@ type Trade struct {
 	// Screen 1: Sector Selection
 	Sector string `json:"sector"`
 
+	// Screen 2: Screener Direction (from last clicked screener)
+	Direction string `json:"direction,omitempty"` // "bullish" or "bearish" - set when user clicks a screener
+
 	// Screen 3: Ticker + Strategy
 	Ticker                       string    `json:"ticker"`
 	Strategy                     string    `json:"strategy"`
