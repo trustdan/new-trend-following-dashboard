@@ -1,9 +1,9 @@
 package ui
 
 import (
-	"image/color"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/theme"
+	"image/color"
 )
 
 // TFEngineTheme implements custom day/night mode themes
@@ -18,16 +18,16 @@ func NewTFEngineTheme() *TFEngineTheme {
 
 // Day mode colors
 var (
-	DayBackground     = color.RGBA{232, 245, 233, 255} // #E8F5E9 Light Green
-	DayPrimary        = color.RGBA{67, 160, 71, 255}   // #43A047 Medium Green
-	DayText           = color.RGBA{27, 94, 32, 255}    // #1B5E20 Dark Text
+	DayBackground = color.RGBA{232, 245, 233, 255} // #E8F5E9 Light Green
+	DayPrimary    = color.RGBA{67, 160, 71, 255}   // #43A047 Medium Green
+	DayText       = color.RGBA{27, 94, 32, 255}    // #1B5E20 Dark Text
 )
 
 // Night mode colors
 var (
-	NightBackground   = color.RGBA{0, 66, 37, 255}     // #004225 British Racing Green
-	NightPrimary      = color.RGBA{129, 199, 132, 255} // #81C784 Light Green
-	NightText         = color.RGBA{232, 245, 233, 255} // #E8F5E9 Light Text
+	NightBackground = color.RGBA{0, 66, 37, 255}     // #004225 British Racing Green
+	NightPrimary    = color.RGBA{129, 199, 132, 255} // #81C784 Light Green
+	NightText       = color.RGBA{232, 245, 233, 255} // #E8F5E9 Light Text
 )
 
 func (t *TFEngineTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {

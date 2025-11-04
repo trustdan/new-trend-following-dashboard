@@ -1,27 +1,27 @@
 package appcore
 
 import (
-	"time"
 	"tf-engine/internal/models"
+	"time"
 )
 
 // AppState holds the global application state
 type AppState struct {
-	Policy          *models.Policy
-	Settings        *models.Settings
-	CurrentTrade    *models.Trade
-	CurrentScreen   string
-	AllTrades       []models.Trade
-	CooldownActive  bool
-	CooldownStart   *time.Time
-	SafeModeActive  bool
+	Policy         *models.Policy
+	Settings       *models.Settings
+	CurrentTrade   *models.Trade
+	CurrentScreen  string
+	AllTrades      []models.Trade
+	CooldownActive bool
+	CooldownStart  *time.Time
+	SafeModeActive bool
 }
 
 // NewAppState creates a new application state
 func NewAppState() *AppState {
 	return &AppState{
-		Settings: models.DefaultSettings(),
-		AllTrades: []models.Trade{},
+		Settings:      models.DefaultSettings(),
+		AllTrades:     []models.Trade{},
 		CurrentScreen: "dashboard",
 	}
 }

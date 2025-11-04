@@ -8,15 +8,15 @@ import (
 
 // Policy represents the complete policy configuration
 type Policy struct {
-	PolicyID      string                 `json:"policy_id"`
-	Version       string                 `json:"version"`
-	GeneratedAt   time.Time              `json:"generated_at"`
-	Sectors       []Sector               `json:"sectors"`
-	Strategies    map[string]Strategy    `json:"strategies"`
-	Checklist     Checklist              `json:"checklist"`
-	Defaults      PolicyDefaults         `json:"defaults"`
-	Calendar      CalendarConfig         `json:"calendar"`
-	FinvizHelpers map[string]string      `json:"finviz_helpers"`
+	PolicyID      string              `json:"policy_id"`
+	Version       string              `json:"version"`
+	GeneratedAt   time.Time           `json:"generated_at"`
+	Sectors       []Sector            `json:"sectors"`
+	Strategies    map[string]Strategy `json:"strategies"`
+	Checklist     Checklist           `json:"checklist"`
+	Defaults      PolicyDefaults      `json:"defaults"`
+	Calendar      CalendarConfig      `json:"calendar"`
+	FinvizHelpers map[string]string   `json:"finviz_helpers"`
 }
 
 // Sector represents a trading sector configuration

@@ -16,8 +16,8 @@ type FeatureFlag struct {
 
 // FeatureFlags represents the complete feature flags configuration
 type FeatureFlags struct {
-	Version string                  `json:"version"`
-	Flags   map[string]FeatureFlag  `json:"flags"`
+	Version string                 `json:"version"`
+	Flags   map[string]FeatureFlag `json:"flags"`
 }
 
 // LoadFeatureFlags loads feature flags from the specified path

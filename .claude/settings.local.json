@@ -16,7 +16,13 @@
       "Bash(sha256sum:*)",
       "Bash(TFEngine-Setup-1.0.0.exe.sha256)",
       "Bash(explorer.exe .)",
-      "Bash(cmd.exe /c \"explorer C:\\Users\\Dan\\new-trend-following-dashboard\")"
+      "Bash(cmd.exe /c \"explorer C:\\Users\\Dan\\new-trend-following-dashboard\")",
+      "Bash(go vet:*)",
+      "Bash(go fmt:*)",
+      "Bash(gofmt:*)",
+      "Bash(findstr:*)",
+      "Bash(git restore:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

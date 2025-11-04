@@ -180,24 +180,24 @@ func TestTickerEntry_Render_WithSector(t *testing.T) {
 // TestTickerEntry_StrategyFiltering tests strategy filtering by sector
 func TestTickerEntry_StrategyFiltering(t *testing.T) {
 	tests := []struct {
-		name            string
-		sector          string
-		expectedCount   int
-		shouldContain   string
+		name             string
+		sector           string
+		expectedCount    int
+		shouldContain    string
 		shouldNotContain string
 	}{
 		{
-			name:            "Healthcare sector - shows Alt10",
-			sector:          "Healthcare",
-			expectedCount:   5, // Healthcare has 5 strategies in test policy
-			shouldContain:   "Alt10",
+			name:             "Healthcare sector - shows Alt10",
+			sector:           "Healthcare",
+			expectedCount:    5, // Healthcare has 5 strategies in test policy
+			shouldContain:    "Alt10",
 			shouldNotContain: "Alt26", // Alt26 is for Technology
 		},
 		{
-			name:            "Technology sector - shows Alt26",
-			sector:          "Technology",
-			expectedCount:   5, // Technology has 5 strategies in test policy
-			shouldContain:   "Alt26",
+			name:             "Technology sector - shows Alt26",
+			sector:           "Technology",
+			expectedCount:    5, // Technology has 5 strategies in test policy
+			shouldContain:    "Alt26",
 			shouldNotContain: "Alt43", // Alt43 is only for Healthcare
 		},
 	}
@@ -539,19 +539,19 @@ func createTestPolicy() *models.Policy {
 		},
 		Sectors: []models.Sector{
 			{
-				Name:     "Healthcare",
-				Priority: 1,
-				Blocked:  false,
-				Warning:  false,
-				Notes:    "Best overall sector",
+				Name:              "Healthcare",
+				Priority:          1,
+				Blocked:           false,
+				Warning:           false,
+				Notes:             "Best overall sector",
 				AllowedStrategies: []string{"Alt10", "Alt46", "Alt43", "Alt39", "Alt28"},
 			},
 			{
-				Name:     "Technology",
-				Priority: 2,
-				Blocked:  false,
-				Warning:  false,
-				Notes:    "Strong momentum sector",
+				Name:              "Technology",
+				Priority:          2,
+				Blocked:           false,
+				Warning:           false,
+				Notes:             "Strong momentum sector",
 				AllowedStrategies: []string{"Alt26", "Alt22", "Alt15", "Alt47", "Alt10"},
 			},
 		},

@@ -156,10 +156,10 @@ func createRequiredDirectories() error {
 func findPolicyFile() string {
 	// Check multiple locations
 	locations := []string{
-		"data/policy.v1.json",          // Development location
-		"policy.v1.json",                // Installed location (same as exe)
-		"../data/policy.v1.json",        // One level up
-		"./data/policy.v1.json",         // Explicit current dir
+		"data/policy.v1.json",    // Development location
+		"policy.v1.json",         // Installed location (same as exe)
+		"../data/policy.v1.json", // One level up
+		"./data/policy.v1.json",  // Explicit current dir
 	}
 
 	// Also check relative to executable

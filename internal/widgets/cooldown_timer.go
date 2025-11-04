@@ -13,13 +13,13 @@ import (
 type CooldownTimer struct {
 	widget.BaseWidget
 
-	duration         time.Duration
-	startTime        time.Time
-	ticker           *time.Ticker
-	done             chan bool
-	onComplete       func()
-	stopped          bool
-	frozenRemaining  time.Duration
+	duration        time.Duration
+	startTime       time.Time
+	ticker          *time.Ticker
+	done            chan bool
+	onComplete      func()
+	stopped         bool
+	frozenRemaining time.Duration
 
 	label       *widget.Label
 	progressBar *widget.ProgressBar

@@ -51,11 +51,11 @@ func TestGenerateSampleTrades_ValidSectors(t *testing.T) {
 
 	// Valid sectors
 	validSectors := map[string]bool{
-		"Healthcare":   true,
-		"Technology":   true,
-		"Industrials":  true,
-		"Consumer":     true,
-		"Financials":   true,
+		"Healthcare":  true,
+		"Technology":  true,
+		"Industrials": true,
+		"Consumer":    true,
+		"Financials":  true,
 	}
 
 	// Assert

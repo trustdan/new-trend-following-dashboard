@@ -13,9 +13,9 @@ import (
 
 // MockScreen implements the Screen interface for testing
 type MockScreen struct {
-	name          string
-	isValid       bool
-	renderCalled  int
+	name           string
+	isValid        bool
+	renderCalled   int
 	validateCalled int
 }
 
@@ -35,7 +35,7 @@ func (m *MockScreen) GetName() string {
 
 // MockWindow implements the minimal fyne.Window interface for testing
 type MockWindow struct {
-	content fyne.CanvasObject
+	content          fyne.CanvasObject
 	setContentCalled int
 }
 
@@ -45,33 +45,33 @@ func (m *MockWindow) SetContent(content fyne.CanvasObject) {
 }
 
 // Stub implementations for other fyne.Window methods
-func (m *MockWindow) Canvas() fyne.Canvas { return nil }
-func (m *MockWindow) CenterOnScreen() {}
-func (m *MockWindow) Clipboard() fyne.Clipboard { return nil }
-func (m *MockWindow) Close() {}
-func (m *MockWindow) Content() fyne.CanvasObject { return m.content }
-func (m *MockWindow) Hide() {}
-func (m *MockWindow) Icon() fyne.Resource { return nil }
-func (m *MockWindow) MainMenu() *fyne.MainMenu { return nil }
-func (m *MockWindow) RequestFocus() {}
-func (m *MockWindow) Resize(fyne.Size) {}
-func (m *MockWindow) SetCloseIntercept(func()) {}
-func (m *MockWindow) SetFixedSize(bool) {}
-func (m *MockWindow) SetFullScreen(bool) {}
-func (m *MockWindow) SetIcon(fyne.Resource) {}
-func (m *MockWindow) SetMainMenu(*fyne.MainMenu) {}
-func (m *MockWindow) SetMaster() {}
-func (m *MockWindow) SetOnClosed(func()) {}
-func (m *MockWindow) SetPadded(bool) {}
-func (m *MockWindow) SetTitle(string) {}
+func (m *MockWindow) Canvas() fyne.Canvas                          { return nil }
+func (m *MockWindow) CenterOnScreen()                              {}
+func (m *MockWindow) Clipboard() fyne.Clipboard                    { return nil }
+func (m *MockWindow) Close()                                       {}
+func (m *MockWindow) Content() fyne.CanvasObject                   { return m.content }
+func (m *MockWindow) Hide()                                        {}
+func (m *MockWindow) Icon() fyne.Resource                          { return nil }
+func (m *MockWindow) MainMenu() *fyne.MainMenu                     { return nil }
+func (m *MockWindow) RequestFocus()                                {}
+func (m *MockWindow) Resize(fyne.Size)                             {}
+func (m *MockWindow) SetCloseIntercept(func())                     {}
+func (m *MockWindow) SetFixedSize(bool)                            {}
+func (m *MockWindow) SetFullScreen(bool)                           {}
+func (m *MockWindow) SetIcon(fyne.Resource)                        {}
+func (m *MockWindow) SetMainMenu(*fyne.MainMenu)                   {}
+func (m *MockWindow) SetMaster()                                   {}
+func (m *MockWindow) SetOnClosed(func())                           {}
+func (m *MockWindow) SetPadded(bool)                               {}
+func (m *MockWindow) SetTitle(string)                              {}
 func (m *MockWindow) SetOnDropped(func(fyne.Position, []fyne.URI)) {}
-func (m *MockWindow) RunWithContext(func()) {}
-func (m *MockWindow) Show() {}
-func (m *MockWindow) ShowAndRun() {}
-func (m *MockWindow) Title() string { return "" }
-func (m *MockWindow) FullScreen() bool { return false }
-func (m *MockWindow) FixedSize() bool { return false }
-func (m *MockWindow) Padded() bool { return false }
+func (m *MockWindow) RunWithContext(func())                        {}
+func (m *MockWindow) Show()                                        {}
+func (m *MockWindow) ShowAndRun()                                  {}
+func (m *MockWindow) Title() string                                { return "" }
+func (m *MockWindow) FullScreen() bool                             { return false }
+func (m *MockWindow) FixedSize() bool                              { return false }
+func (m *MockWindow) Padded() bool                                 { return false }
 
 func setupTestNavigator(t *testing.T) (*Navigator, *appcore.AppState, *MockWindow) {
 	// Setup test environment

@@ -219,7 +219,7 @@ func TestScreenerLaunch_LaunchURL_Tracking(t *testing.T) {
 		Policy: &models.Policy{
 			Sectors: []models.Sector{
 				{
-					Name:   "Healthcare",
+					Name: "Healthcare",
 					ScreenerURLs: map[string]string{
 						"universe": "https://finviz.com/screener.ashx?v=211&f=sec_healthcare",
 					},

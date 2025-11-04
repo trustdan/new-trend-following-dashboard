@@ -154,7 +154,7 @@ func TestListPhase2Flags(t *testing.T) {
 	flags := &FeatureFlags{
 		Version: "1.0.0",
 		Flags: map[string]FeatureFlag{
-			"phase1_feature": {Enabled: true, Phase: 1, SinceVersion: "1.0.0"},
+			"phase1_feature":  {Enabled: true, Phase: 1, SinceVersion: "1.0.0"},
 			"phase2_feature1": {Enabled: false, Phase: 2, SinceVersion: "2.0.0"},
 			"phase2_feature2": {Enabled: false, Phase: 2, SinceVersion: "2.1.0"},
 		},
