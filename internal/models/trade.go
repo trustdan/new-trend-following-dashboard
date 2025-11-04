@@ -14,10 +14,13 @@ type Trade struct {
 	Sector string `json:"sector"`
 
 	// Screen 3: Ticker + Strategy
-	Ticker            string    `json:"ticker"`
-	Strategy          string    `json:"strategy"`
-	CooldownStartTime time.Time `json:"cooldown_start_time"`
-	CooldownComplete  bool      `json:"cooldown_complete"`
+	Ticker                       string    `json:"ticker"`
+	Strategy                     string    `json:"strategy"`
+	StrategySuitability          string    `json:"strategy_suitability,omitempty"`           // "excellent", "good", "marginal", "incompatible"
+	StrategyWarningAcknowledged  bool      `json:"strategy_warning_acknowledged,omitempty"`  // True if user acknowledged yellow/red warning
+	UtilitiesWarningAcknowledged bool      `json:"utilities_warning_acknowledged,omitempty"` // True if user acknowledged Utilities warning
+	CooldownStartTime            time.Time `json:"cooldown_start_time"`
+	CooldownComplete             bool      `json:"cooldown_complete"`
 
 	// Screen 4: Checklist
 	ChecklistPassed   bool            `json:"checklist_passed"`

@@ -25,10 +25,18 @@ Please refer to and use the /.claude/agents as appropriate, depending on the tas
 
 This rule exists because the previous project failed due to excessive features. This application must stay ruthlessly focused on the core workflow. When the user requests a feature, implement exactly what was asked—no more, no less.
 
-### Rule #2: Policy-Driven Design
+### Rule #2: Policy-Driven Design with Warning System (Phase 6)
 **The application is controlled by [data/policy.v1.json](data/policy.v1.json)—never hardcode business logic.**
 
 All sector configurations, strategy mappings, portfolio limits, and behavioral rules live in this JSON file. The app reads and enforces these policies at runtime. This allows the user to update trading rules without recompiling code.
+
+**Phase 6 Update - Warning-Based System:**
+- The app now uses a **permissive warning system** instead of hard blocks
+- ALL strategies are shown with color-coded suitability ratings (🟢 green, 🟡 yellow, 🔴 red)
+- Green strategies: No warnings, immediate continue
+- Yellow/Red strategies: Warning banner + acknowledgement checkbox required
+- Utilities sector: Shows modal warning (0% backtest success) but allows trading with acknowledgement
+- User flexibility is preserved while research-based guardrails remain visible
 
 ### Rule #3: Anti-Impulsivity is Non-Negotiable
 **Every trade must pass through cooldown timers, checklists, and heat checks.**

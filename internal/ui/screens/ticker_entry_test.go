@@ -177,28 +177,25 @@ func TestTickerEntry_Render_WithSector(t *testing.T) {
 	}
 }
 
-// TestTickerEntry_StrategyFiltering tests strategy filtering by sector
+// TestTickerEntry_StrategyFiltering tests strategy display with indicators
 func TestTickerEntry_StrategyFiltering(t *testing.T) {
 	tests := []struct {
-		name             string
-		sector           string
-		expectedCount    int
-		shouldContain    string
-		shouldNotContain string
+		name          string
+		sector        string
+		expectedCount int
+		shouldContain string
 	}{
 		{
-			name:             "Healthcare sector - shows Alt10",
-			sector:           "Healthcare",
-			expectedCount:    5, // Healthcare has 5 strategies in test policy
-			shouldContain:    "Alt10",
-			shouldNotContain: "Alt26", // Alt26 is for Technology
+			name:          "Healthcare sector - shows all strategies",
+			sector:        "Healthcare",
+			expectedCount: 9, // Shows ALL strategies with indicators
+			shouldContain: "Alt10",
 		},
 		{
-			name:             "Technology sector - shows Alt26",
-			sector:           "Technology",
-			expectedCount:    5, // Technology has 5 strategies in test policy
-			shouldContain:    "Alt26",
-			shouldNotContain: "Alt43", // Alt43 is only for Healthcare
+			name:          "Technology sector - shows all strategies",
+			sector:        "Technology",
+			expectedCount: 9, // Shows ALL strategies with indicators
+			shouldContain: "Alt26",
 		},
 	}
 
@@ -217,7 +214,7 @@ func TestTickerEntry_StrategyFiltering(t *testing.T) {
 			screen := NewTickerEntry(state, window)
 
 			// Act
-			strategies := screen.getFilteredStrategies()
+			strategies := screen.getAllStrategiesWithIndicators()
 
 			// Assert
 			if len(strategies) != tt.expectedCount {
@@ -234,13 +231,6 @@ func TestTickerEntry_StrategyFiltering(t *testing.T) {
 			}
 			if !found {
 				t.Errorf("Expected to find %s in strategies, but didn't", tt.shouldContain)
-			}
-
-			// Check shouldNotContain
-			for _, s := range strategies {
-				if contains(s, tt.shouldNotContain) {
-					t.Errorf("Did not expect to find %s in strategies, but found it", tt.shouldNotContain)
-				}
 			}
 		})
 	}
@@ -259,7 +249,7 @@ func TestTickerEntry_StrategyFiltering_NoSector(t *testing.T) {
 	screen := NewTickerEntry(state, window)
 
 	// Act
-	strategies := screen.getFilteredStrategies()
+	strategies := screen.getAllStrategiesWithIndicators()
 
 	// Assert
 	if len(strategies) != 0 {
@@ -545,6 +535,33 @@ func createTestPolicy() *models.Policy {
 				Warning:           false,
 				Notes:             "Best overall sector",
 				AllowedStrategies: []string{"Alt10", "Alt46", "Alt43", "Alt39", "Alt28"},
+				// Phase 6: Strategy suitability ratings
+				StrategySuitability: map[string]models.StrategySuitability{
+					"Alt10": {
+						Rating:                 "excellent",
+						Color:                  "green",
+						Rationale:              "Healthcare +33.13% with Alt10",
+						RequireAcknowledgement: false,
+					},
+					"Alt46": {
+						Rating:                 "excellent",
+						Color:                  "green",
+						Rationale:              "Healthcare +32.16% with Alt46",
+						RequireAcknowledgement: false,
+					},
+					"Alt26": {
+						Rating:                 "marginal",
+						Color:                  "yellow",
+						Rationale:              "Healthcare +8.7% with Alt26 (marginal)",
+						RequireAcknowledgement: true,
+					},
+					"Alt22": {
+						Rating:                 "incompatible",
+						Color:                  "red",
+						Rationale:              "Parabolic SAR incompatible with Healthcare (0% success)",
+						RequireAcknowledgement: true,
+					},
+				},
 			},
 			{
 				Name:              "Technology",
@@ -553,6 +570,21 @@ func createTestPolicy() *models.Policy {
 				Warning:           false,
 				Notes:             "Strong momentum sector",
 				AllowedStrategies: []string{"Alt26", "Alt22", "Alt15", "Alt47", "Alt10"},
+				// Phase 6: Strategy suitability ratings
+				StrategySuitability: map[string]models.StrategySuitability{
+					"Alt10": {
+						Rating:                 "good",
+						Color:                  "green",
+						Rationale:              "Technology +18.3% with Alt10",
+						RequireAcknowledgement: false,
+					},
+					"Alt26": {
+						Rating:                 "excellent",
+						Color:                  "green",
+						Rationale:              "Technology +25.6% with Alt26",
+						RequireAcknowledgement: false,
+					},
+				},
 			},
 		},
 		Strategies: map[string]models.Strategy{

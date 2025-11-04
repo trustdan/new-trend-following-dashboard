@@ -22,14 +22,31 @@ type Policy struct {
 
 // Sector represents a trading sector configuration
 type Sector struct {
-	Name              string            `json:"name"`
-	Priority          int               `json:"priority"`
-	Blocked           bool              `json:"blocked"`
-	Warning           bool              `json:"warning"`
-	HeatCapPercent    float64           `json:"heat_cap_percent"`
-	Notes             string            `json:"notes"`
-	AllowedStrategies []string          `json:"allowed_strategies"`
-	ScreenerURLs      map[string]string `json:"screener_urls"`
+	Name                string                         `json:"name"`
+	Priority            int                            `json:"priority"`
+	Blocked             bool                           `json:"blocked"`
+	Warning             bool                           `json:"warning"`
+	HeatCapPercent      float64                        `json:"heat_cap_percent"`
+	Notes               string                         `json:"notes"`
+	AllowedStrategies   []string                       `json:"allowed_strategies"`
+	ScreenerURLs        map[string]string              `json:"screener_urls"`
+	StrategySuitability map[string]StrategySuitability `json:"strategy_suitability,omitempty"`
+	UtilitiesWarning    *UtilitiesWarning              `json:"utilities_warning,omitempty"`
+}
+
+// StrategySuitability represents how suitable a strategy is for a given sector
+type StrategySuitability struct {
+	Rating                 string `json:"rating"` // "excellent", "good", "marginal", "incompatible"
+	Color                  string `json:"color"`  // "green", "yellow", "red"
+	Rationale              string `json:"rationale"`
+	RequireAcknowledgement bool   `json:"require_acknowledgement"`
+}
+
+// UtilitiesWarning represents the warning configuration for the Utilities sector
+type UtilitiesWarning struct {
+	Title               string `json:"title"`
+	Message             string `json:"message"`
+	AcknowledgementText string `json:"acknowledgement_text"`
 }
 
 // Strategy represents a Pine Script trading strategy

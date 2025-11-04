@@ -5,7 +5,7 @@
   "app_min_version": "2.0.0",
   "security": {
     "signature_alg": "sha256",
-    "signature": "3e3de9b81d03ddd0442b4a7020b0083e23dd4e89aef99f5f3720ef32f4abc964",
+    "signature": "7ef21fd46924584a5f1300128337b22cf064317694f8dfbd23144fcaa228e00c",
     "enforce_hash": true,
     "on_hash_mismatch": "safe_mode"
   },
@@ -522,7 +522,7 @@
       "blocked": false,
       "warning": true,
       "heat_cap_percent": 0.01,
-      "notes": "PLD okay; XLRE fails\u2014treat with caution.",
+      "notes": "PLD okay; XLRE fails—treat with caution.",
       "allowed_strategies": [
         "Alt10",
         "Alt26"
@@ -646,11 +646,84 @@
     {
       "name": "Utilities",
       "priority": 6,
-      "blocked": true,
-      "warning": false,
+      "blocked": false,
+      "warning": true,
       "heat_cap_percent": 0.0,
-      "notes": "Zero profitable strategies across tests\u2014BLOCKED.",
-      "allowed_strategies": []
+      "notes": "Zero profitable strategies across tests. Only trade strong directional moves or obvious range-bound edges.",
+      "allowed_strategies": [],
+      "strategy_suitability": {
+        "Alt10": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Utilities -12.4% with Alt10 (mean-reverting sector incompatible with profit targets)",
+          "require_acknowledgement": true
+        },
+        "Alt46": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Utilities -6.2% with Alt46 (sector-adaptive cannot fix mean-reversion)",
+          "require_acknowledgement": true
+        },
+        "Alt26": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Utilities -8.9% with Alt26 (fractional pyramid fails on whipsaws)",
+          "require_acknowledgement": true
+        },
+        "Baseline": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Turtle Core trend-following catastrophic in mean-reverting utilities",
+          "require_acknowledgement": true
+        },
+        "Alt22": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Parabolic SAR generates excessive whipsaws in utilities (0% success)",
+          "require_acknowledgement": true
+        },
+        "Alt28": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "ADX filter cannot fix fundamental utilities mean-reversion (0% success)",
+          "require_acknowledgement": true
+        },
+        "Alt43": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Volatility-adaptive targets fail on utilities whipsaws (0% success)",
+          "require_acknowledgement": true
+        },
+        "Alt47": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Momentum-scaled sizing useless in non-trending utilities (0% success)",
+          "require_acknowledgement": true
+        },
+        "Alt45": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Dual-momentum confirmation weak in utilities (0% success)",
+          "require_acknowledgement": true
+        },
+        "Alt9": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Time exit catastrophic on utilities (0% success)",
+          "require_acknowledgement": true
+        },
+        "Alt39": {
+          "rating": "incompatible",
+          "color": "red",
+          "rationale": "Age-based targets fail in mean-reverting utilities (0% success)",
+          "require_acknowledgement": true
+        }
+      },
+      "utilities_warning": {
+        "title": "⚠️ Utilities Sector Warning",
+        "message": "We have ZERO successful backtests with Utilities. This sector is mean-reverting and unsuitable for trend-following strategies. Historical data shows consistent losses across all tested strategies:\n\n• Alt10 (Profit Targets): -12.4%\n• Alt46 (Sector-Adaptive): -6.2%\n• Alt26 (Fractional Pyramid): -8.9%\n• All other strategies: 0% success rate\n\nONLY TRADE if you identify:\n✓ Strong, sustained uptrend (above SMA200 for 3+ months)\n✓ Strong, sustained downtrend (below SMA200 for 3+ months)\n✓ Obvious range-bound pattern at clear support/resistance levels\n\nProceed with extreme caution and tight risk management.",
+        "acknowledgement_text": "I understand Utilities has 0% backtest success and will only trade clear directional moves or range edges with tight risk management."
+      }
     }
   ],
   "strategies": {
@@ -668,7 +741,7 @@
       "notes": "Universal across stocks and ETFs."
     },
     "Alt26": {
-      "label": "Fractional Pyramid (100%\u219275%\u219250%\u219225%)",
+      "label": "Fractional Pyramid (100%→75%→50%→25%)",
       "options_suitability": "excellent",
       "hold_weeks": "2-8",
       "best_examples": [

@@ -244,7 +244,13 @@ func (s *SectorSelection) createSectorCard(sector models.Sector) fyne.CanvasObje
 }
 
 func (s *SectorSelection) selectSector(sector models.Sector) {
-	// Don't allow selection of blocked sectors
+	// Phase 6: Check if sector has Utilities warning modal
+	if sector.UtilitiesWarning != nil {
+		s.showUtilitiesModal(sector)
+		return
+	}
+
+	// Don't allow selection of blocked sectors (legacy check - shouldn't happen with Phase 6)
 	if sector.Blocked {
 		s.showError(fmt.Sprintf("%s is blocked for trading based on backtest results", sector.Name))
 		return
@@ -288,6 +294,94 @@ func (s *SectorSelection) createInfoBanner() fyne.CanvasObject {
 	bg := canvas.NewRectangle(color.RGBA{R: 200, G: 230, B: 255, A: 100})
 
 	return container.NewStack(bg, container.NewPadded(banner))
+}
+
+// showUtilitiesModal displays a warning modal for Utilities sector
+func (s *SectorSelection) showUtilitiesModal(sector models.Sector) {
+	warning := sector.UtilitiesWarning
+
+	// Title with icon
+	titleLabel := widget.NewLabel(warning.Title)
+	titleLabel.TextStyle = fyne.TextStyle{Bold: true}
+	titleLabel.Alignment = fyne.TextAlignCenter
+
+	// Warning message
+	messageLabel := widget.NewLabel(warning.Message)
+	messageLabel.Wrapping = fyne.TextWrapWord
+
+	// Acknowledgement checkbox
+	ackCheckbox := widget.NewCheck(warning.AcknowledgementText, nil)
+
+	// Create a container for the content
+	content := container.NewVBox(
+		titleLabel,
+		widget.NewSeparator(),
+		messageLabel,
+		widget.NewSeparator(),
+		ackCheckbox,
+	)
+
+	// Create custom dialog with buttons
+	dialog := widget.NewModalPopUp(
+		content,
+		s.window.Canvas(),
+	)
+
+	// Go Back button
+	goBackBtn := widget.NewButton("← Go Back", func() {
+		dialog.Hide()
+		fmt.Println("User declined Utilities sector (Go Back)")
+	})
+
+	// Continue Anyway button (initially disabled)
+	continueBtn := widget.NewButton("Continue Anyway →", func() {
+		if ackCheckbox.Checked {
+			// Initialize trade with Utilities sector
+			if s.state.CurrentTrade == nil {
+				s.state.CurrentTrade = &models.Trade{}
+			}
+			s.state.CurrentTrade.Sector = sector.Name
+			s.state.CurrentTrade.UtilitiesWarningAcknowledged = true
+			s.selectedSector = sector.Name
+
+			// Log warning acknowledgement
+			fmt.Printf("⚠️  UTILITIES SECTOR WARNING ACKNOWLEDGED by user\n")
+
+			// Enable continue button
+			if s.continueBtn != nil {
+				s.continueBtn.Enable()
+			}
+
+			// Hide modal and refresh screen
+			dialog.Hide()
+			s.window.SetContent(s.Render())
+		}
+	})
+	continueBtn.Importance = widget.HighImportance
+	continueBtn.Disable()
+
+	// Enable Continue button when checkbox is checked
+	ackCheckbox.OnChanged = func(checked bool) {
+		if checked {
+			continueBtn.Enable()
+		} else {
+			continueBtn.Disable()
+		}
+	}
+
+	// Add buttons to dialog
+	buttonRow := container.NewHBox(
+		goBackBtn,
+		layout.NewSpacer(),
+		continueBtn,
+	)
+
+	content.Add(widget.NewSeparator())
+	content.Add(buttonRow)
+
+	// Set dialog size
+	dialog.Resize(fyne.NewSize(600, 450))
+	dialog.Show()
 }
 
 // showError displays an error message to the user
