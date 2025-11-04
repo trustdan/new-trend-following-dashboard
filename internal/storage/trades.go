@@ -161,6 +161,49 @@ func loadAllTradesUnsafe() ([]models.Trade, error) {
 	return trades, nil
 }
 
+// SaveAllTrades saves the entire trade history (used for edit/delete operations)
+func SaveAllTrades(trades []models.Trade) error {
+	globalStorage.mu.Lock()
+	defer globalStorage.mu.Unlock()
+
+	// Backup existing file before overwriting
+	if fileExists(TradesFile) {
+		if err := os.MkdirAll(BackupDir, 0755); err != nil {
+			return fmt.Errorf("failed to create backup directory: %w", err)
+		}
+
+		backupPath := filepath.Join(BackupDir,
+			fmt.Sprintf("trades_%s.json", time.Now().Format("20060102_150405")))
+
+		if err := copyFile(TradesFile, backupPath); err != nil {
+			// Log warning but don't fail
+			fmt.Printf("Warning: Failed to create backup: %v\n", err)
+		}
+	}
+
+	// Ensure data directory exists
+	if err := os.MkdirAll("data", 0755); err != nil {
+		return fmt.Errorf("failed to create data directory: %w", err)
+	}
+
+	// Save to file atomically
+	data, err := json.MarshalIndent(trades, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshal error: %w", err)
+	}
+
+	tmpFile := TradesFile + ".tmp"
+	if err := os.WriteFile(tmpFile, data, 0644); err != nil {
+		return fmt.Errorf("write error: %w", err)
+	}
+
+	if err := os.Rename(tmpFile, TradesFile); err != nil {
+		return fmt.Errorf("rename error: %w", err)
+	}
+
+	return nil
+}
+
 // DeleteInProgressTrade removes the in-progress trade file
 func DeleteInProgressTrade() error {
 	globalStorage.mu.Lock()

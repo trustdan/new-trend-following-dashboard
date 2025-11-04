@@ -11,6 +11,11 @@ type TFEngineTheme struct {
 	Mode string // "day" or "night"
 }
 
+// NewTFEngineTheme creates a new theme with the specified mode
+func NewTFEngineTheme() *TFEngineTheme {
+	return &TFEngineTheme{Mode: "day"}
+}
+
 // Day mode colors
 var (
 	DayBackground     = color.RGBA{232, 245, 233, 255} // #E8F5E9 Light Green

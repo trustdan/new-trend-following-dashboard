@@ -8,7 +8,15 @@
       "Bash(go run:*)",
       "Bash(go test:*)",
       "Bash(cat:*)",
-      "Bash(go build:*)"
+      "Bash(go build:*)",
+      "Bash(where:*)",
+      "Bash(dir:*)",
+      "Bash(test:*)",
+      "Bash(\"/c/Program Files (x86)/NSIS/makensis.exe\" tf-engine-installer.nsi)",
+      "Bash(sha256sum:*)",
+      "Bash(TFEngine-Setup-1.0.0.exe.sha256)",
+      "Bash(explorer.exe .)",
+      "Bash(cmd.exe /c \"explorer C:\\Users\\Dan\\new-trend-following-dashboard\")"
     ],
     "deny": [],
     "ask": []

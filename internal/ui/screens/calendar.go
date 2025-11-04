@@ -8,15 +8,20 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"tf-engine/internal/appcore"
+	"tf-engine/internal/config"
 	"tf-engine/internal/models"
+	"tf-engine/internal/storage"
+	"tf-engine/internal/testing/generators"
 )
 
 // Calendar represents Screen 8: Trade Calendar View (Horserace Timeline)
 type Calendar struct {
-	state  *appcore.AppState
-	window fyne.Window
+	state        *appcore.AppState
+	window       fyne.Window
+	featureFlags *config.FeatureFlags
 }
 
 // NewCalendar creates a new calendar screen
@@ -24,6 +29,15 @@ func NewCalendar(state *appcore.AppState, window fyne.Window) *Calendar {
 	return &Calendar{
 		state:  state,
 		window: window,
+	}
+}
+
+// NewCalendarWithFlags creates a new calendar screen with feature flags
+func NewCalendarWithFlags(state *appcore.AppState, window fyne.Window, featureFlags *config.FeatureFlags) *Calendar {
+	return &Calendar{
+		state:        state,
+		window:       window,
+		featureFlags: featureFlags,
 	}
 }
 
@@ -84,10 +98,18 @@ func (c *Calendar) Render() fyne.CanvasObject {
 		c.window.SetContent(c.Render())
 	})
 
-	buttons := container.NewHBox(
-		newTradeBtn,
-		refreshBtn,
-	)
+	// Sample data button (Phase 2 feature)
+	buttonsContainer := container.NewHBox(newTradeBtn, refreshBtn)
+
+	if c.featureFlags != nil && c.featureFlags.IsEnabled("sample_data_generator") {
+		sampleDataBtn := widget.NewButton("Generate Sample Data", func() {
+			c.generateSampleData()
+		})
+		sampleDataBtn.Importance = widget.LowImportance
+		buttonsContainer.Add(sampleDataBtn)
+	}
+
+	buttons := buttonsContainer
 
 	content := container.NewVBox(
 		title,
@@ -408,6 +430,43 @@ func (c *Calendar) loadAllTrades() {
 	// if err == nil {
 	//     c.state.AllTrades = trades
 	// }
+}
+
+// generateSampleData generates sample trades and saves them to storage (Phase 2 feature)
+func (c *Calendar) generateSampleData() {
+	// Confirm with user
+	dialog.ShowConfirm(
+		"Generate Sample Data",
+		"This will generate 10 sample trades for testing. Continue?",
+		func(confirmed bool) {
+			if !confirmed {
+				return
+			}
+
+			// Generate sample trades
+			sampleTrades := generators.GenerateSampleTrades(10)
+
+			// Save to storage
+			if err := storage.SaveAllTrades(sampleTrades); err != nil {
+				dialog.ShowError(err, c.window)
+				return
+			}
+
+			// Update state
+			c.state.AllTrades = sampleTrades
+
+			// Show success message
+			dialog.ShowInformation(
+				"Success",
+				fmt.Sprintf("Generated %d sample trades successfully!", len(sampleTrades)),
+				c.window,
+			)
+
+			// Refresh display
+			c.window.SetContent(c.Render())
+		},
+		c.window,
+	)
 }
 
 // Validate checks if the screen's data is valid

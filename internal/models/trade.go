@@ -50,4 +50,32 @@ type Trade struct {
 	ExitDate        *time.Time `json:"exit_date,omitempty"`
 	ExitPrice       *float64   `json:"exit_price,omitempty"`
 	ProfitLoss      *float64   `json:"profit_loss,omitempty"`
+	Status          string     `json:"status"`  // "active", "closed", "expired"
+}
+
+// GetStatus returns the current status of the trade
+func (t *Trade) GetStatus() string {
+	if t.Status != "" {
+		return t.Status
+	}
+
+	// Derive status if not explicitly set
+	if t.ExitDate != nil {
+		return "closed"
+	}
+
+	// Check if expired
+	if time.Now().After(t.ExpirationDate) {
+		return "expired"
+	}
+
+	return "active"
+}
+
+// GetPnL returns the profit/loss for the trade
+func (t *Trade) GetPnL() float64 {
+	if t.ProfitLoss != nil {
+		return *t.ProfitLoss
+	}
+	return 0.0
 }
