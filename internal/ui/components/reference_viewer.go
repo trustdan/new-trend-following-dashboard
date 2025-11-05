@@ -40,35 +40,35 @@ func (rv *ReferenceViewer) ShowReference(refType string) {
 
 	// Pine Script Strategies
 	case "strategy_alt10":
-		filePath = "pine-script-strategies/alt10.pine"
-		title = "Alt10 - Profit Targets Strategy"
+		filePath = "pine-script-strategies/summaries/Alt10-Summary.md"
+		title = "Alt10 - Profit Targets"
 	case "strategy_alt22":
-		filePath = "pine-script-strategies/alt22.pine"
-		title = "Alt22 - Parabolic SAR Strategy"
+		filePath = "pine-script-strategies/summaries/Alt22-Summary.md"
+		title = "Alt22 - Parabolic SAR"
 	case "strategy_alt26":
-		filePath = "pine-script-strategies/alt26.pine"
-		title = "Alt26 - Fractional Pyramiding Strategy"
+		filePath = "pine-script-strategies/summaries/Alt26-Summary.md"
+		title = "Alt26 - Fractional Pyramid"
 	case "strategy_alt28":
-		filePath = "pine-script-strategies/alt28.pine"
-		title = "Alt28 - ADX Filter Strategy"
+		filePath = "pine-script-strategies/summaries/Alt28-Summary.md"
+		title = "Alt28 - ADX Filter"
 	case "strategy_alt39":
-		filePath = "pine-script-strategies/alt39.pine"
-		title = "Alt39 - Age-Based Targets Strategy"
+		filePath = "pine-script-strategies/summaries/Alt39-Summary.md"
+		title = "Alt39 - Age-Based Targets"
 	case "strategy_alt43":
-		filePath = "pine-script-strategies/seykota_alt43_volatility_adaptive_targets.pine"
-		title = "Alt43 - Volatility Adaptive Targets Strategy"
+		filePath = "pine-script-strategies/summaries/Alt43-Summary.md"
+		title = "Alt43 - Volatility-Adaptive Targets"
 	case "strategy_alt45":
-		filePath = "pine-script-strategies/seykota_alt45_dual_momentum_confirmation.pine"
-		title = "Alt45 - Dual Momentum Confirmation Strategy"
+		filePath = "pine-script-strategies/summaries/Alt45-Summary.md"
+		title = "Alt45 - Dual-Momentum Confirmation"
 	case "strategy_alt46":
-		filePath = "pine-script-strategies/seykota_alt46_sector_adaptive_parameters.pine"
-		title = "Alt46 - Sector Adaptive Parameters Strategy"
+		filePath = "pine-script-strategies/summaries/Alt46-Summary.md"
+		title = "Alt46 - Sector-Adaptive Parameters"
 	case "strategy_alt47":
-		filePath = "pine-script-strategies/seykota_alt47_momentum_scaled_sizing.pine"
-		title = "Alt47 - Momentum Scaled Sizing Strategy"
+		filePath = "pine-script-strategies/summaries/Alt47-Summary.md"
+		title = "Alt47 - Momentum-Scaled Sizing"
 	case "strategy_turtle_core":
-		filePath = "pine-script-strategies/turtle-core-v2.2.pine"
-		title = "Turtle Core V2.2 Strategy (Baseline)"
+		filePath = "pine-script-strategies/summaries/Baseline-Summary.md"
+		title = "Baseline - Turtle Core v2.2"
 
 	// Finviz Screeners
 	case "screener_master":
@@ -131,21 +131,8 @@ func (rv *ReferenceViewer) readFile(filePath string) (string, error) {
 
 // showDialog displays the reference content in a scrollable dialog
 func (rv *ReferenceViewer) showDialog(title, content string) {
-	// Detect if content is Pine Script or Markdown
-	isPineScript := strings.HasSuffix(title, "Strategy") && !strings.Contains(title, "Guide")
-
-	// Add header explaining the content
-	var header string
-	if isPineScript {
-		header = "📊 Pine Script Strategy Code\n\n" +
-			"Copy this code into TradingView's Pine Editor to use this strategy.\n" +
-			"Click the Pine Editor tab, paste the code, and click 'Add to Chart'.\n\n" +
-			strings.Repeat("─", 80) + "\n\n"
-	} else {
-		header = "" // No header for markdown guides - they have their own formatting
-	}
-
-	fullContent := header + content
+	// All content is now markdown, no need for special headers
+	fullContent := content
 
 	// Create a rich text widget for displaying the content
 	textWidget := widget.NewRichTextFromMarkdown(fullContent)
