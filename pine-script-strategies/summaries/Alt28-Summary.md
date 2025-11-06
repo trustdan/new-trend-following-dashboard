@@ -6,13 +6,15 @@
 
 ## 📊 Quick Stats
 
-| Metric | Value |
-|--------|-------|
-| **Primary Use** | Diagnostic tool / filter (not standalone strategy) |
-| **Options Suitability** | ⭐⭐⭐ Selective |
-| **Hold Time** | Variable (trend-dependent) |
-| **Best For** | Confirming trend strength, filtering entries |
-| **Weakness** | Over-filters in choppy markets |
+**Primary Use:** Diagnostic tool / filter (not standalone strategy)
+
+**Options Suitability:** ⭐⭐⭐ Selective
+
+**Hold Time:** Variable (trend-dependent)
+
+**Best For:** Confirming trend strength, filtering entries
+
+**Weakness:** Over-filters in choppy markets
 
 ---
 

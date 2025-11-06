@@ -13,6 +13,7 @@ import (
 	"tf-engine/internal/ui/components"
 	"tf-engine/internal/ui/help"
 	"tf-engine/internal/ui/screens"
+	"tf-engine/internal/ui/vimium"
 )
 
 // Screen represents a single screen in the workflow
@@ -31,6 +32,7 @@ type Navigator struct {
 	window          fyne.Window
 	topBar          *components.TopBar
 	referenceViewer *components.ReferenceViewer
+	vimiumManager   *vimium.VimiumManager
 }
 
 // NewNavigator creates a new navigator with all 9 screens (8 workflow + 1 management)
@@ -45,16 +47,27 @@ func NewNavigator(state *appcore.AppState, window fyne.Window) *Navigator {
 	// Initialize reference viewer
 	nav.referenceViewer = components.NewReferenceViewer(window)
 
+	// Initialize Vimium mode (Phase 2 feature)
+	nav.vimiumManager = vimium.NewVimiumManager(state.FeatureFlags, window)
+	nav.vimiumManager.SetCallbacks(
+		func() { nav.Next() },           // Next screen
+		func() { nav.Back() },           // Previous screen
+		func() { nav.NavigateToDashboard() }, // Home/Dashboard
+		func() { nav.ShowHelp() },       // Help
+	)
+
 	// Initialize top bar with navigation callbacks
 	nav.topBar = components.NewTopBar(
 		state,
 		window,
 		nav.NavigateToSettings,
 		nav.JumpToCalendar,
+		nav.NavigateToDashboard,
 		nav.ShowReference,
+		nil, // Theme toggle will be set by main
 	)
 
-	// Initialize all screens (8 workflow screens + trade management)
+	// Initialize all screens (8 workflow screens + 2 Phase 2 screens)
 	nav.screens = []Screen{
 		screens.NewSectorSelection(state, window),
 		screens.NewScreenerLaunch(state, window),
@@ -65,6 +78,7 @@ func NewNavigator(state *appcore.AppState, window fyne.Window) *Navigator {
 		screens.NewTradeEntry(state, window),
 		screens.NewCalendarWithFlags(state, window, state.FeatureFlags, nav), // Pass feature flags and navigator
 		screens.NewTradeManagement(state, window, state.FeatureFlags),        // Screen 9: Phase 2 feature
+		screens.NewAnalytics(state, window, state.FeatureFlags),              // Screen 10: Phase 2 feature
 	}
 
 	// Set navigation callbacks on screens that support them
@@ -196,6 +210,23 @@ func (n *Navigator) JumpToTradeManagement() {
 	n.window.SetContent(n.wrapWithTopBar(content))
 }
 
+// JumpToAnalytics navigates directly to analytics screen
+func (n *Navigator) JumpToAnalytics() {
+	// Auto-save current progress
+	n.AutoSave()
+
+	// Remember where we came from
+	n.history = append(n.history, n.currentIndex)
+
+	// Jump to analytics (screen index 9)
+	n.currentIndex = 9
+	n.state.CurrentScreen = "analytics"
+
+	// Render analytics with top bar
+	content := n.screens[9].Render()
+	n.window.SetContent(n.wrapWithTopBar(content))
+}
+
 // NavigateToDashboard returns to the main dashboard
 func (n *Navigator) NavigateToDashboard() {
 	n.currentIndex = -1
@@ -285,15 +316,23 @@ func (n *Navigator) ShowHelp() {
 	help.ShowHelpDialog(screenName, n.window)
 }
 
-// wrapWithTopBar wraps screen content with the top navigation bar
+// wrapWithTopBar wraps screen content with the top navigation bar and Vimium overlay
 func (n *Navigator) wrapWithTopBar(content fyne.CanvasObject) fyne.CanvasObject {
+	// Wrap content with Vimium overlay if enabled
+	wrappedContent := n.vimiumManager.WrapContent(content)
+
 	return container.NewBorder(
 		n.topBar.Render(), // Top
 		nil,               // Bottom
 		nil,               // Left
 		nil,               // Right
-		content,           // Center
+		wrappedContent,    // Center
 	)
+}
+
+// GetVimiumManager returns the Vimium manager (for adding toggle button to UI)
+func (n *Navigator) GetVimiumManager() *vimium.VimiumManager {
+	return n.vimiumManager
 }
 
 // NavigateToSettings navigates to the settings screen
@@ -318,5 +357,19 @@ func (n *Navigator) NavigateToSettings() {
 func (n *Navigator) ShowReference(refType string) {
 	if n.referenceViewer != nil {
 		n.referenceViewer.ShowReference(refType)
+	}
+}
+
+// SetThemeToggleCallback sets the theme toggle callback on the top bar
+func (n *Navigator) SetThemeToggleCallback(callback func()) {
+	if n.topBar != nil {
+		n.topBar.SetThemeToggleCallback(callback)
+	}
+}
+
+// UpdateThemeButton updates the theme button text based on current mode
+func (n *Navigator) UpdateThemeButton(mode string) {
+	if n.topBar != nil {
+		n.topBar.UpdateThemeButtonText(mode)
 	}
 }

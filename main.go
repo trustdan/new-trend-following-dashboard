@@ -122,7 +122,6 @@ func main() {
 	// Create Fyne application
 	logging.InfoLogger.Println("Creating Fyne application...")
 	fyneApp := app.NewWithID(AppID)
-	fyneApp.Settings().SetTheme(ui.NewTFEngineTheme())
 
 	// Create main window
 	logging.InfoLogger.Println("Creating main window...")
@@ -130,9 +129,28 @@ func main() {
 	window.Resize(fyne.NewSize(1024, 768))
 	window.CenterOnScreen()
 
+	// Create theme with window reference
+	tfTheme := ui.NewTFEngineTheme(window)
+	fyneApp.Settings().SetTheme(tfTheme)
+
 	// Create navigator
 	logging.InfoLogger.Println("Initializing navigator...")
 	navigator := ui.NewNavigator(state, window)
+
+	// Wire up theme toggle callback
+	navigator.SetThemeToggleCallback(func() {
+		newMode := tfTheme.ToggleMode()
+		navigator.UpdateThemeButton(newMode)
+		logging.InfoLogger.Printf("Theme switched to: %s mode", newMode)
+	})
+
+	// Set up keyboard event handler for Vimium mode (Phase 2 feature)
+	if navigator.GetVimiumManager() != nil {
+		window.Canvas().SetOnTypedKey(func(key *fyne.KeyEvent) {
+			navigator.GetVimiumManager().HandleKeyboard(key)
+		})
+		logging.InfoLogger.Println("Vimium keyboard shortcuts initialized")
+	}
 
 	// Show welcome screen on first launch (if feature enabled)
 	if shouldShowWelcome() {

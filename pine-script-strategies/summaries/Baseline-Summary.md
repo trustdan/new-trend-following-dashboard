@@ -6,13 +6,15 @@
 
 ## 📊 Quick Stats
 
-| Metric | Value |
-|--------|-------|
-| **Role** | Benchmark strategy for comparison |
-| **Options Suitability** | ⭐⭐⭐ Good |
-| **Hold Time** | 4-12 weeks |
-| **Best For** | Conservative traders, beginners, benchmarking |
-| **Philosophy** | Classic Turtle Trading rules (refined) |
+**Role:** Benchmark strategy for comparison
+
+**Options Suitability:** ⭐⭐⭐ Good
+
+**Hold Time:** 4-12 weeks
+
+**Best For:** Conservative traders, beginners, benchmarking
+
+**Philosophy:** Classic Turtle Trading rules (refined)
 
 ---
 

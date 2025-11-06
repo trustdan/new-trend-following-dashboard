@@ -6,13 +6,15 @@
 
 ## 📊 Quick Stats
 
-| Metric | Value |
-|--------|-------|
-| **Success Rate** | 76.19% (highest of all strategies) |
-| **Options Suitability** | ⭐⭐⭐⭐⭐ Excellent |
-| **Hold Time** | 3-10 weeks |
-| **Best For** | Universal - works on stocks and ETFs |
-| **Performance** | Healthcare +33.13%, Technology strong, SPY excellent |
+**Success Rate:** 76.19% (highest of all strategies)
+
+**Options Suitability:** ⭐⭐⭐⭐⭐ Excellent
+
+**Hold Time:** 3-10 weeks
+
+**Best For:** Universal - works on stocks and ETFs
+
+**Performance:** Healthcare +33.13%, Technology strong, SPY excellent
 
 ---
 

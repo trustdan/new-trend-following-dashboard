@@ -6,13 +6,15 @@
 
 ## 📊 Quick Stats
 
-| Metric | Value |
-|--------|-------|
-| **Healthcare Success Rate** | 92% (sector-specific) |
-| **Options Suitability** | ⭐⭐⭐⭐⭐ Excellent (Healthcare) |
-| **Hold Time** | 3-12 weeks |
-| **Best For** | Healthcare stocks and ETFs |
-| **Performance** | Healthcare +32.16%, near-record XLV |
+**Healthcare Success Rate:** 92% (sector-specific)
+
+**Options Suitability:** ⭐⭐⭐⭐⭐ Excellent (Healthcare)
+
+**Hold Time:** 3-12 weeks
+
+**Best For:** Healthcare stocks and ETFs
+
+**Performance:** Healthcare +32.16%, near-record XLV
 
 ---
 

@@ -76,9 +76,31 @@ func (d *Dashboard) Render() fyne.CanvasObject {
 		sampleDataButton.Disable()
 	}
 
+	// Advanced Analytics button (Phase 2 feature)
+	analyticsButton := widget.NewButton("📊 View Analytics", func() {
+		if d.navigator != nil {
+			d.navigator.JumpToAnalytics()
+		}
+	})
+
+	// Check if Advanced Analytics feature is enabled
+	analyticsEnabled := d.state.FeatureFlags != nil && d.state.FeatureFlags.IsEnabled("advanced_analytics")
+	if !analyticsEnabled {
+		analyticsButton.Disable()
+	}
+
 	// Phase 2 features label
-	phase2Label := widget.NewLabel("Phase 2 Features (disabled by default):")
+	phase2Label := widget.NewLabel("Phase 2 Features:")
 	phase2Label.TextStyle = fyne.TextStyle{Italic: true}
+
+	// Vim Mode toggle button (Phase 2 feature)
+	var vimModeButton *widget.Button
+	if d.navigator != nil && d.navigator.GetVimiumManager() != nil {
+		vimModeButton = d.navigator.GetVimiumManager().GetToggleButton()
+	} else {
+		vimModeButton = widget.NewButton("⌨️ Vim Mode", func() {})
+		vimModeButton.Disable()
+	}
 
 	helpButton := widget.NewButton("Help", func() {
 		help.ShowHelpDialog("welcome", d.window)
@@ -113,6 +135,8 @@ func (d *Dashboard) Render() fyne.CanvasObject {
 		phase2Label,
 		manageTradesButton,
 		sampleDataButton,
+		analyticsButton,
+		vimModeButton,
 		widget.NewSeparator(),
 		widget.NewLabel("Account Settings"),
 		accountInfo,

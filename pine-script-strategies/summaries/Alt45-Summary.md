@@ -6,13 +6,15 @@
 
 ## 📊 Quick Stats
 
-| Metric | Value |
-|--------|-------|
-| **Consistency** | 2nd-best across 293 backtests |
-| **Options Suitability** | ⭐⭐⭐⭐ Good (Stocks), ⭐⭐ Weak (SPY) |
-| **Hold Time** | 3-12 weeks |
-| **Best For** | Stocks, QQQ (NOT SPY), quality over quantity |
-| **Trade Philosophy** | Fewer trades, higher quality |
+**Consistency:** 2nd-best across 293 backtests
+
+**Options Suitability:** ⭐⭐⭐⭐ Good (Stocks), ⭐⭐ Weak (SPY)
+
+**Hold Time:** 3-12 weeks
+
+**Best For:** Stocks, QQQ (NOT SPY), quality over quantity
+
+**Trade Philosophy:** Fewer trades, higher quality
 
 ---
 

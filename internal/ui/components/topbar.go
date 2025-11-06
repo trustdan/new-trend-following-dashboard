@@ -10,39 +10,59 @@ import (
 
 // TopBar provides quick navigation to key screens and reference materials
 type TopBar struct {
-	state     *appcore.AppState
-	window    fyne.Window
-	onSettings func()
-	onCalendar func()
-	onReferences func(refType string)
+	state         *appcore.AppState
+	window        fyne.Window
+	onSettings    func()
+	onCalendar    func()
+	onHome        func()
+	onReferences  func(refType string)
+	onThemeToggle func()
+	themeButton   *widget.Button // Store reference to update text
 }
 
 // NewTopBar creates a new top bar navigation component
-func NewTopBar(state *appcore.AppState, window fyne.Window, onSettings, onCalendar func(), onReferences func(refType string)) *TopBar {
+func NewTopBar(state *appcore.AppState, window fyne.Window, onSettings, onCalendar, onHome func(), onReferences func(refType string), onThemeToggle func()) *TopBar {
 	return &TopBar{
-		state:        state,
-		window:       window,
-		onSettings:   onSettings,
-		onCalendar:   onCalendar,
-		onReferences: onReferences,
+		state:         state,
+		window:        window,
+		onSettings:    onSettings,
+		onCalendar:    onCalendar,
+		onHome:        onHome,
+		onReferences:  onReferences,
+		onThemeToggle: onThemeToggle,
 	}
 }
 
 // Render creates the top bar UI
 func (t *TopBar) Render() fyne.CanvasObject {
+	// Home/Dashboard button
+	homeBtn := widget.NewButton("🏠 Home", func() {
+		if t.onHome != nil {
+			t.onHome()
+		}
+	})
+
 	// Settings button
-	settingsBtn := widget.NewButton("Settings", func() {
+	settingsBtn := widget.NewButton("⚙️ Settings", func() {
 		if t.onSettings != nil {
 			t.onSettings()
 		}
 	})
 
 	// Calendar button
-	calendarBtn := widget.NewButton("Calendar", func() {
+	calendarBtn := widget.NewButton("📅 Calendar", func() {
 		if t.onCalendar != nil {
 			t.onCalendar()
 		}
 	})
+
+	// Day/Night mode toggle
+	themeBtn := widget.NewButton("🌙 Night Mode", func() {
+		if t.onThemeToggle != nil {
+			t.onThemeToggle()
+		}
+	})
+	t.themeButton = themeBtn // Store reference
 
 	// Pine Script Strategies dropdown
 	strategiesMenu := fyne.NewMenu("Pine Scripts",
@@ -146,13 +166,31 @@ func (t *TopBar) Render() fyne.CanvasObject {
 
 	// Create horizontal container with buttons
 	topBar := container.NewHBox(
+		homeBtn,
 		settingsBtn,
 		calendarBtn,
 		widget.NewSeparator(),
 		strategiesBtn,
 		screenersBtn,
 		spacer,
+		themeBtn,
 	)
 
 	return topBar
+}
+
+// SetThemeToggleCallback sets the theme toggle callback (called from main after creation)
+func (t *TopBar) SetThemeToggleCallback(callback func()) {
+	t.onThemeToggle = callback
+}
+
+// UpdateThemeButtonText updates the theme button text based on current mode
+func (t *TopBar) UpdateThemeButtonText(mode string) {
+	if t.themeButton != nil {
+		if mode == "night" {
+			t.themeButton.SetText("☀️ Day Mode")
+		} else {
+			t.themeButton.SetText("🌙 Night Mode")
+		}
+	}
 }

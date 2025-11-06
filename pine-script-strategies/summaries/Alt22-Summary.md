@@ -6,14 +6,17 @@
 
 ## 📊 Quick Stats
 
-| Metric | Value |
-|--------|-------|
-| **QQQ Performance** | Excellent (momentum specialist) |
-| **Options Suitability** | ⭐⭐⭐⭐ Good (Tech only) |
-| **Hold Time** | 2-6 weeks |
-| **Best For** | QQQ, tech breakouts, high momentum |
-| **Trade Frequency** | High churn (frequent trades) |
-| **AVOID** | Healthcare, utilities, defensive sectors |
+**QQQ Performance:** Excellent (momentum specialist)
+
+**Options Suitability:** ⭐⭐⭐⭐ Good (Tech only)
+
+**Hold Time:** 2-6 weeks
+
+**Best For:** QQQ, tech breakouts, high momentum
+
+**Trade Frequency:** High churn (frequent trades)
+
+**AVOID:** Healthcare, utilities, defensive sectors
 
 ---
 

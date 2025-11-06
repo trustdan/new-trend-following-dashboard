@@ -6,13 +6,15 @@
 
 ## 📊 Quick Stats
 
-| Metric | Value |
-|--------|-------|
-| **XLV Performance** | Record (best healthcare ETF result) |
-| **Options Suitability** | ⭐⭐⭐⭐⭐ Excellent (Stocks), ⭐⭐⭐ Selective (ETFs) |
-| **Hold Time** | 3-12 weeks |
-| **Best For** | Healthcare ETFs (XLV), individual stocks, variable volatility |
-| **Not Recommended** | SPY (use Alt39 instead) |
+**XLV Performance:** Record (best healthcare ETF result)
+
+**Options Suitability:** ⭐⭐⭐⭐⭐ Excellent (Stocks), ⭐⭐⭐ Selective (ETFs)
+
+**Hold Time:** 3-12 weeks
+
+**Best For:** Healthcare ETFs (XLV), individual stocks, variable volatility
+
+**Not Recommended:** SPY (use Alt39 instead)
 
 ---
 

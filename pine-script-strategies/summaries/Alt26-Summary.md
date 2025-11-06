@@ -6,13 +6,15 @@
 
 ## 📊 Quick Stats
 
-| Metric | Value |
-|--------|-------|
-| **SPY Performance** | Best SPY result in entire backtest suite |
-| **Options Suitability** | ⭐⭐⭐⭐⭐ Excellent |
-| **Hold Time** | 2-8 weeks |
-| **Best For** | SPY, tech momentum stocks, building positions |
-| **Drawdown Profile** | Ultra-low (easiest to hold psychologically) |
+**SPY Performance:** Best SPY result in entire backtest suite
+
+**Options Suitability:** ⭐⭐⭐⭐⭐ Excellent
+
+**Hold Time:** 2-8 weeks
+
+**Best For:** SPY, tech momentum stocks, building positions
+
+**Drawdown Profile:** Ultra-low (easiest to hold psychologically)
 
 ---
 

@@ -6,13 +6,15 @@
 
 ## 📊 Quick Stats
 
-| Metric | Value |
-|--------|-------|
-| **SPY Performance** | Excellent (better than Alt43) |
-| **Options Suitability** | ⭐⭐⭐⭐⭐ Excellent |
-| **Hold Time** | 3-12 weeks |
-| **Best For** | SPY, QQQ, healthcare, slow-grinding stocks |
-| **Unique Feature** | Profit targets widen as trade ages |
+**SPY Performance:** Excellent (better than Alt43)
+
+**Options Suitability:** ⭐⭐⭐⭐⭐ Excellent
+
+**Hold Time:** 3-12 weeks
+
+**Best For:** SPY, QQQ, healthcare, slow-grinding stocks
+
+**Unique Feature:** Profit targets widen as trade ages
 
 ---
 

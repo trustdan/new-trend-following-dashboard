@@ -6,14 +6,17 @@
 
 ## 📊 Quick Stats
 
-| Metric | Value |
-|--------|-------|
-| **Drawdown Profile** | Ultra-low (-3% to -5% typical) |
-| **Options Suitability** | ⭐⭐⭐⭐⭐ Excellent (Stocks only) |
-| **Hold Time** | 4-10 weeks |
-| **Best For** | Individual stocks ONLY (never ETFs) |
-| **Risk Profile** | Lowest drawdowns of all strategies |
-| **CRITICAL** | CATASTROPHIC on ETFs - stocks only! |
+**Drawdown Profile:** Ultra-low (-3% to -5% typical)
+
+**Options Suitability:** ⭐⭐⭐⭐⭐ Excellent (Stocks only)
+
+**Hold Time:** 4-10 weeks
+
+**Best For:** Individual stocks ONLY (never ETFs)
+
+**Risk Profile:** Lowest drawdowns of all strategies
+
+**CRITICAL:** CATASTROPHIC on ETFs - stocks only!
 
 ---
 
