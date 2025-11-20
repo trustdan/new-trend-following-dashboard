@@ -105,8 +105,8 @@ func (rv *ReferenceViewer) ShowReference(refType string) {
 func (rv *ReferenceViewer) readFile(filePath string) (string, error) {
 	// Try multiple possible locations
 	locations := []string{
-		filePath,                        // Direct path
-		filepath.Join("..", filePath),   // One level up
+		filePath,                         // Direct path
+		filepath.Join("..", filePath),    // One level up
 		filepath.Join("../..", filePath), // Two levels up
 	}
 

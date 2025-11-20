@@ -1,7 +1,10 @@
 package vimium
 
 import (
+	"time"
+
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 
@@ -10,13 +13,15 @@ import (
 
 // VimiumManager manages Vimium mode state and UI
 type VimiumManager struct {
-	handler      *ShortcutHandler
-	overlay      *ShortcutOverlay
-	linkHintMode *LinkHintMode
-	toggleButton *widget.Button
-	featureFlags *config.FeatureFlags
-	window       fyne.Window
-	currentContent fyne.CanvasObject // Track current content for link hints
+	handler         *ShortcutHandler
+	overlay         *ShortcutOverlay
+	linkHintMode    *LinkHintMode
+	toggleButton    *widget.Button
+	featureFlags    *config.FeatureFlags
+	window          fyne.Window
+	currentContent  fyne.CanvasObject // Track current content for link hints
+	onRefresh       func()            // Callback to refresh the entire UI
+	scrollContainer *container.Scroll // Track scroll container for keyboard scrolling
 }
 
 // NewVimiumManager creates a new Vimium mode manager
@@ -59,9 +64,30 @@ func (vm *VimiumManager) Toggle() {
 	if enabled {
 		vm.overlay.Show()
 		vm.toggleButton.SetText("⌨️ Vim Mode ON")
+		if vm.window != nil {
+			vm.window.RequestFocus()
+		}
+
+		// Auto-hide overlay after 3 seconds so it doesn't cover UI
+		go func() {
+			time.Sleep(3 * time.Second)
+			if vm.handler.IsEnabled() && vm.overlay.IsVisible() {
+				vm.overlay.Hide()
+				if vm.window != nil && vm.window.Canvas() != nil {
+					vm.window.Canvas().Refresh(vm.overlay)
+				} else {
+					canvas.Refresh(vm.overlay)
+				}
+			}
+		}()
 	} else {
 		vm.overlay.Hide()
 		vm.toggleButton.SetText("⌨️ Vim Mode")
+	}
+
+	// Trigger UI refresh to show/hide overlay and keep content reference fresh
+	if vm.onRefresh != nil {
+		vm.onRefresh()
 	}
 }
 
@@ -72,6 +98,60 @@ func (vm *VimiumManager) SetCallbacks(next, prev, home, help func()) {
 		vm.ActivateLinkHints()
 	}
 	vm.handler.SetCallbacks(next, prev, home, help, linkHintsCallback)
+
+	// Set up scroll callbacks
+	vm.handler.SetScrollCallbacks(
+		vm.scrollDown,
+		vm.scrollUp,
+		vm.pageDown,
+		vm.pageUp,
+	)
+}
+
+// scrollDown scrolls down by a small amount (j key)
+func (vm *VimiumManager) scrollDown() {
+	if vm.scrollContainer != nil {
+		offset := vm.scrollContainer.Offset
+		offset.Y += 30 // Scroll down 30 pixels
+		vm.scrollContainer.Offset = offset
+		vm.scrollContainer.Refresh()
+	}
+}
+
+// scrollUp scrolls up by a small amount (k key)
+func (vm *VimiumManager) scrollUp() {
+	if vm.scrollContainer != nil {
+		offset := vm.scrollContainer.Offset
+		offset.Y -= 30 // Scroll up 30 pixels
+		if offset.Y < 0 {
+			offset.Y = 0
+		}
+		vm.scrollContainer.Offset = offset
+		vm.scrollContainer.Refresh()
+	}
+}
+
+// pageDown scrolls down by a page (d key)
+func (vm *VimiumManager) pageDown() {
+	if vm.scrollContainer != nil {
+		offset := vm.scrollContainer.Offset
+		offset.Y += float32(vm.scrollContainer.Size().Height) // Scroll by viewport height
+		vm.scrollContainer.Offset = offset
+		vm.scrollContainer.Refresh()
+	}
+}
+
+// pageUp scrolls up by a page (u key)
+func (vm *VimiumManager) pageUp() {
+	if vm.scrollContainer != nil {
+		offset := vm.scrollContainer.Offset
+		offset.Y -= float32(vm.scrollContainer.Size().Height) // Scroll by viewport height
+		if offset.Y < 0 {
+			offset.Y = 0
+		}
+		vm.scrollContainer.Offset = offset
+		vm.scrollContainer.Refresh()
+	}
 }
 
 // HandleKeyboard handles keyboard events
@@ -118,19 +198,11 @@ func (vm *VimiumManager) WrapContent(content fyne.CanvasObject) fyne.CanvasObjec
 	// Store current content for link hints
 	vm.currentContent = content
 
-	// Build layers: content, shortcuts overlay, hints overlay
-	layers := []fyne.CanvasObject{content}
-
-	if vm.overlay.IsVisible() {
-		layers = append(layers, vm.overlay)
-	}
-
-	if vm.linkHintMode.IsActive() {
-		layers = append(layers, vm.linkHintMode.GetOverlay())
-	}
-
-	if len(layers) == 1 {
-		return content
+	// Build layers: content, shortcuts overlay, hints overlay (always included)
+	layers := []fyne.CanvasObject{
+		content,
+		vm.overlay,
+		vm.linkHintMode.GetOverlay(),
 	}
 
 	return container.NewStack(layers...)
@@ -142,4 +214,23 @@ func (vm *VimiumManager) CreateVimiumEnabledCanvas(window fyne.Window) {
 	window.Canvas().SetOnTypedKey(func(key *fyne.KeyEvent) {
 		vm.HandleKeyboard(key)
 	})
+}
+
+// AttachKeyboardHandler attaches the keyboard event handler to the window
+func (vm *VimiumManager) AttachKeyboardHandler() {
+	if vm.window != nil {
+		vm.window.Canvas().SetOnTypedKey(func(key *fyne.KeyEvent) {
+			vm.HandleKeyboard(key)
+		})
+	}
+}
+
+// SetRefreshCallback sets a callback to refresh the UI when Vim mode is toggled
+func (vm *VimiumManager) SetRefreshCallback(callback func()) {
+	vm.onRefresh = callback
+}
+
+// SetScrollContainer sets the scroll container for keyboard scrolling
+func (vm *VimiumManager) SetScrollContainer(scroll *container.Scroll) {
+	vm.scrollContainer = scroll
 }

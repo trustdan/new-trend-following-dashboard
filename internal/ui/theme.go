@@ -8,8 +8,8 @@ import (
 
 // TFEngineTheme implements custom day/night mode themes
 type TFEngineTheme struct {
-	Mode   string       // "day" or "night"
-	window fyne.Window  // Reference to window for refreshing UI
+	Mode   string      // "day" or "night"
+	window fyne.Window // Reference to window for refreshing UI
 }
 
 // NewTFEngineTheme creates a new theme with the specified mode
@@ -22,21 +22,22 @@ func NewTFEngineTheme(window fyne.Window) *TFEngineTheme {
 
 // Day mode colors
 var (
-	DayBackground      = color.RGBA{240, 248, 241, 255} // #F0F8F1 Very Light Green
-	DayPrimary         = color.RGBA{46, 125, 50, 255}   // #2E7D32 Forest Green
-	DayText            = color.RGBA{27, 94, 32, 255}    // #1B5E20 Dark Text
-	DayButton          = color.RGBA{232, 245, 233, 255} // #E8F5E9 Light Green for buttons
-	DayDisabledText    = color.RGBA{158, 158, 158, 255} // #9E9E9E Grey
+	DayBackground   = color.RGBA{240, 248, 241, 255} // #F0F8F1 Very Light Green
+	DayPrimary      = color.RGBA{46, 125, 50, 255}   // #2E7D32 Forest Green
+	DayText         = color.RGBA{27, 94, 32, 255}    // #1B5E20 Dark Text
+	DayButton       = color.RGBA{232, 245, 233, 255} // #E8F5E9 Light Green for buttons
+	DayDisabledText = color.RGBA{158, 158, 158, 255} // #9E9E9E Grey
 )
 
 // Night mode colors (proper contrast for readability)
 var (
-	NightBackground     = color.RGBA{15, 76, 58, 255}    // #0F4C3A Dark British Racing Green
-	NightPrimary        = color.RGBA{102, 187, 106, 255} // #66BB6A Medium Green
-	NightText           = color.RGBA{232, 245, 233, 255} // #E8F5E9 Very Light Text
-	NightButton         = color.RGBA{27, 94, 32, 255}    // #1B5E20 Dark Green for buttons
-	NightButtonText     = color.RGBA{232, 245, 233, 255} // #E8F5E9 Light Text on buttons
-	NightDisabledText   = color.RGBA{117, 117, 117, 255} // #757575 Medium Grey
+	NightBackground   = color.RGBA{15, 76, 58, 255}    // #0F4C3A Dark British Racing Green
+	NightPrimary      = color.RGBA{102, 187, 106, 255} // #66BB6A Medium Green
+	NightText         = color.RGBA{232, 245, 233, 255} // #E8F5E9 Very Light Text
+	NightButton       = color.RGBA{27, 94, 32, 255}    // #1B5E20 Dark Green for buttons
+	NightButtonText   = color.RGBA{232, 245, 233, 255} // #E8F5E9 Light Text on buttons
+	NightDisabledText = color.RGBA{117, 117, 117, 255} // #757575 Medium Grey
+	NightOverlay      = color.RGBA{10, 40, 30, 255}    // Darker green for overlays/menus to ensure contrast
 )
 
 func (t *TFEngineTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVariant) color.Color {
@@ -66,6 +67,8 @@ func (t *TFEngineTheme) Color(name fyne.ThemeColorName, variant fyne.ThemeVarian
 			return color.RGBA{102, 187, 106, 255} // Medium green scrollbar
 		case theme.ColorNameShadow:
 			return color.RGBA{0, 0, 0, 100} // Semi-transparent black
+		case theme.ColorNameMenuBackground, theme.ColorNameOverlayBackground:
+			return NightOverlay // Proper background for menus and overlays
 		}
 	} else {
 		switch name {

@@ -50,10 +50,6 @@ func (so *ShortcutOverlay) IsVisible() bool {
 
 // CreateRenderer creates the renderer for the overlay
 func (so *ShortcutOverlay) CreateRenderer() fyne.WidgetRenderer {
-	if !so.visible {
-		return widget.NewLabel("").CreateRenderer()
-	}
-
 	// Create shortcuts list
 	items := []fyne.CanvasObject{}
 
@@ -70,14 +66,17 @@ func (so *ShortcutOverlay) CreateRenderer() fyne.WidgetRenderer {
 		desc string
 	}{
 		{"f", "Link hints - click anything"},
-		{"j/k", "Navigate up/down in lists"},
+		{"j", "Scroll down"},
+		{"k", "Scroll up"},
+		{"d", "Page down"},
+		{"u", "Page up"},
 		{"h / ←", "Previous screen"},
 		{"l / →", "Next screen"},
 		{"g", "Go to dashboard"},
 		{"/ or ?", "Show help"},
 		{"Enter", "Select/Continue"},
 		{"Esc", "Cancel/Back"},
-		{"Ctrl+V", "Toggle Vimium mode"},
+		{"Ctrl+V", "Toggle Vim mode"},
 	}
 
 	for _, sc := range shortcuts {
@@ -100,7 +99,7 @@ func (so *ShortcutOverlay) CreateRenderer() fyne.WidgetRenderer {
 
 	// Create background with padding
 	bg := canvas.NewRectangle(theme.OverlayBackgroundColor())
-	bg.Resize(fyne.NewSize(400, 250))
+	bg.Resize(fyne.NewSize(420, 320)) // Increased size for more shortcuts
 
 	return &overlayRenderer{
 		overlay:    so,
@@ -120,7 +119,7 @@ type overlayRenderer struct {
 
 func (r *overlayRenderer) Layout(size fyne.Size) {
 	// Position in bottom-right corner
-	contentSize := fyne.NewSize(400, 250)
+	contentSize := fyne.NewSize(420, 320) // Increased size for more shortcuts
 	r.background.Resize(contentSize)
 	r.content.Resize(contentSize)
 
@@ -132,7 +131,7 @@ func (r *overlayRenderer) Layout(size fyne.Size) {
 }
 
 func (r *overlayRenderer) MinSize() fyne.Size {
-	return fyne.NewSize(400, 250)
+	return fyne.NewSize(420, 320) // Increased size for more shortcuts
 }
 
 func (r *overlayRenderer) Refresh() {

@@ -20,6 +20,7 @@ import (
 // Navigator interface for navigation
 type Navigator interface {
 	NavigateToScreen(index int) error
+	RefreshCurrentScreen()
 }
 
 // Calendar represents Screen 8: Trade Calendar View (Horserace Timeline)
@@ -107,7 +108,7 @@ func (c *Calendar) Render() fyne.CanvasObject {
 	refreshBtn := widget.NewButton("Refresh", func() {
 		// Reload all trades and refresh display
 		c.loadAllTrades()
-		c.window.SetContent(c.Render())
+		c.refreshCalendar()
 	})
 
 	// Sample data button (Phase 2 feature)
@@ -202,10 +203,12 @@ func (c *Calendar) createTimeline(sectors []string, startDate, endDate time.Time
 	elements = append(elements, todayLine...)
 
 	// Create container with all elements
-	timeline := container.NewWithoutLayout(elements...)
-	timeline.Resize(fyne.NewSize(canvasWidth, canvasHeight))
+	containerWithoutLayout := container.NewWithoutLayout(elements...)
 
-	return timeline
+	// Wrap in custom widget to enforce size for layout engine
+	timelineWidget := NewTimelineWidget(containerWithoutLayout, fyne.NewSize(canvasWidth, canvasHeight))
+
+	return timelineWidget
 }
 
 // drawTimeAxis draws the time axis labels
@@ -475,7 +478,7 @@ func (c *Calendar) generateSampleData() {
 			)
 
 			// Refresh display
-			c.window.SetContent(c.Render())
+			c.refreshCalendar()
 		},
 		c.window,
 	)
@@ -490,4 +493,40 @@ func (c *Calendar) Validate() bool {
 // GetName returns the screen name
 func (c *Calendar) GetName() string {
 	return "calendar"
+}
+
+// refreshCalendar re-renders the calendar using navigator if available
+func (c *Calendar) refreshCalendar() {
+	if c.navigator != nil {
+		c.navigator.RefreshCurrentScreen()
+		return
+	}
+
+	if c.window != nil {
+		c.window.SetContent(c.Render())
+	}
+}
+
+// TimelineWidget is a wrapper to enforce minimum size for the timeline
+type TimelineWidget struct {
+	widget.BaseWidget
+	content *fyne.Container
+	minSize fyne.Size
+}
+
+func NewTimelineWidget(content *fyne.Container, size fyne.Size) *TimelineWidget {
+	t := &TimelineWidget{
+		content: content,
+		minSize: size,
+	}
+	t.ExtendBaseWidget(t)
+	return t
+}
+
+func (t *TimelineWidget) CreateRenderer() fyne.WidgetRenderer {
+	return widget.NewSimpleRenderer(t.content)
+}
+
+func (t *TimelineWidget) MinSize() fyne.Size {
+	return t.minSize
 }

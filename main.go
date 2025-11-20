@@ -8,6 +8,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/driver/desktop"
 
 	"tf-engine/internal/appcore"
 	"tf-engine/internal/config"
@@ -144,12 +145,30 @@ func main() {
 		logging.InfoLogger.Printf("Theme switched to: %s mode", newMode)
 	})
 
-	// Set up keyboard event handler for Vimium mode (Phase 2 feature)
+	// Set up keyboard event handler for Vim mode (Phase 2 feature)
 	if navigator.GetVimiumManager() != nil {
-		window.Canvas().SetOnTypedKey(func(key *fyne.KeyEvent) {
-			navigator.GetVimiumManager().HandleKeyboard(key)
+		vimManager := navigator.GetVimiumManager()
+
+		// Set refresh callback so overlay appears when toggled
+		vimManager.SetRefreshCallback(func() {
+			// Re-render the current screen to properly show/hide overlay
+			navigator.RefreshCurrentScreen()
 		})
-		logging.InfoLogger.Println("Vimium keyboard shortcuts initialized")
+
+		// Add Ctrl+V shortcut to toggle Vim mode
+		window.Canvas().AddShortcut(&desktop.CustomShortcut{
+			KeyName:  fyne.KeyV,
+			Modifier: desktop.ControlModifier,
+		}, func(shortcut fyne.Shortcut) {
+			vimManager.Toggle()
+		})
+
+		// Set up keyboard event handler for other shortcuts
+		window.Canvas().SetOnTypedKey(func(key *fyne.KeyEvent) {
+			vimManager.HandleKeyboard(key)
+		})
+
+		logging.InfoLogger.Println("Vim mode keyboard shortcuts initialized")
 	}
 
 	// Show welcome screen on first launch (if feature enabled)

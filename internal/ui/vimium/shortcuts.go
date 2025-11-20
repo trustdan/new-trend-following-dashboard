@@ -12,6 +12,10 @@ type ShortcutHandler struct {
 	onHome       func() // Go to dashboard (g)
 	onHelp       func() // Show help (/ or ?)
 	onLinkHints  func() // Activate link hints (f)
+	onScrollDown func() // Scroll down (j)
+	onScrollUp   func() // Scroll up (k)
+	onPageDown   func() // Page down (d)
+	onPageUp     func() // Page up (u)
 }
 
 // NewShortcutHandler creates a new keyboard shortcut handler
@@ -40,17 +44,45 @@ func (sh *ShortcutHandler) SetCallbacks(next, prev, home, help, linkHints func()
 	sh.onLinkHints = linkHints
 }
 
+// SetScrollCallbacks sets the scroll callback functions
+func (sh *ShortcutHandler) SetScrollCallbacks(scrollDown, scrollUp, pageDown, pageUp func()) {
+	sh.onScrollDown = scrollDown
+	sh.onScrollUp = scrollUp
+	sh.onPageDown = pageDown
+	sh.onPageUp = pageUp
+}
+
 // HandleKeyboard handles keyboard events when Vimium mode is enabled
 func (sh *ShortcutHandler) HandleKeyboard(key *fyne.KeyEvent) bool {
 	if !sh.enabled {
 		return false
 	}
 
+	println("DEBUG: Key pressed:", key.Name)
+
 	switch key.Name {
-	case fyne.KeyJ: // Down/Next in lists
-		return true
-	case fyne.KeyK: // Up/Previous in lists
-		return true
+	case fyne.KeyJ: // Scroll down
+		println("DEBUG: J key detected")
+		if sh.onScrollDown != nil {
+			sh.onScrollDown()
+			return true
+		}
+	case fyne.KeyK: // Scroll up
+		println("DEBUG: K key detected")
+		if sh.onScrollUp != nil {
+			sh.onScrollUp()
+			return true
+		}
+	case fyne.KeyD: // Page down
+		if sh.onPageDown != nil {
+			sh.onPageDown()
+			return true
+		}
+	case fyne.KeyU: // Page up
+		if sh.onPageUp != nil {
+			sh.onPageUp()
+			return true
+		}
 	case fyne.KeyH: // Previous screen
 		if sh.onPrev != nil {
 			sh.onPrev()
@@ -100,14 +132,17 @@ func (sh *ShortcutHandler) HandleKeyboard(key *fyne.KeyEvent) bool {
 // GetShortcutHelp returns a map of keyboard shortcuts and their descriptions
 func GetShortcutHelp() map[string]string {
 	return map[string]string{
-		"f":          "Link hints - show clickable elements",
-		"j/k":        "Navigate up/down in lists",
-		"h/←":        "Previous screen",
-		"l/→":        "Next screen",
-		"g":          "Go to dashboard",
-		"/ or ?":     "Show help",
-		"Enter":      "Select/Continue",
-		"Esc":        "Cancel/Back",
-		"Ctrl+V":     "Toggle Vimium mode",
+		"f":      "Link hints - show clickable elements",
+		"j":      "Scroll down",
+		"k":      "Scroll up",
+		"d":      "Page down",
+		"u":      "Page up",
+		"h/←":    "Previous screen",
+		"l/→":    "Next screen",
+		"g":      "Go to dashboard",
+		"/ or ?": "Show help",
+		"Enter":  "Select/Continue",
+		"Esc":    "Cancel/Back",
+		"Ctrl+V": "Toggle Vim mode",
 	}
 }

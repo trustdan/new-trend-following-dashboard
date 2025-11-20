@@ -9,21 +9,21 @@ import (
 
 // TradeStats holds performance statistics for trades
 type TradeStats struct {
-	TotalTrades     int
-	WinningTrades   int
-	LosingTrades    int
-	WinRate         float64
-	TotalPnL        float64
-	AveragePnL      float64
-	AverageWin      float64
-	AverageLoss     float64
-	LargestWin      float64
-	LargestLoss     float64
-	ProfitFactor    float64
-	SharpeRatio     float64
-	MaxDrawdown     float64
-	MaxDrawdownPct  float64
-	CurrentStreak   int
+	TotalTrades       int
+	WinningTrades     int
+	LosingTrades      int
+	WinRate           float64
+	TotalPnL          float64
+	AveragePnL        float64
+	AverageWin        float64
+	AverageLoss       float64
+	LargestWin        float64
+	LargestLoss       float64
+	ProfitFactor      float64
+	SharpeRatio       float64
+	MaxDrawdown       float64
+	MaxDrawdownPct    float64
+	CurrentStreak     int
 	LongestWinStreak  int
 	LongestLossStreak int
 }

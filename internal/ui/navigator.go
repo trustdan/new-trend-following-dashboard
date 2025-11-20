@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/widget"
 
 	"tf-engine/internal/appcore"
 	"tf-engine/internal/storage"
@@ -50,10 +51,10 @@ func NewNavigator(state *appcore.AppState, window fyne.Window) *Navigator {
 	// Initialize Vimium mode (Phase 2 feature)
 	nav.vimiumManager = vimium.NewVimiumManager(state.FeatureFlags, window)
 	nav.vimiumManager.SetCallbacks(
-		func() { nav.Next() },           // Next screen
-		func() { nav.Back() },           // Previous screen
+		func() { nav.Next() },                // Next screen
+		func() { nav.Back() },                // Previous screen
 		func() { nav.NavigateToDashboard() }, // Home/Dashboard
-		func() { nav.ShowHelp() },       // Help
+		func() { nav.ShowHelp() },            // Help
 	)
 
 	// Initialize top bar with navigation callbacks
@@ -127,7 +128,7 @@ func (n *Navigator) Next() error {
 
 	// Render new screen with top bar
 	content := n.screens[n.currentIndex].Render()
-	n.window.SetContent(n.wrapWithTopBar(content))
+	n.setContent(n.wrapWithTopBar(content))
 
 	return nil
 }
@@ -155,7 +156,7 @@ func (n *Navigator) Back() error {
 		n.NavigateToDashboard()
 	} else {
 		content := n.screens[n.currentIndex].Render()
-		n.window.SetContent(n.wrapWithTopBar(content))
+		n.setContent(n.wrapWithTopBar(content))
 	}
 
 	return nil
@@ -190,7 +191,7 @@ func (n *Navigator) JumpToCalendar() {
 
 	// Render calendar with top bar
 	content := n.screens[7].Render()
-	n.window.SetContent(n.wrapWithTopBar(content))
+	n.setContent(n.wrapWithTopBar(content))
 }
 
 // JumpToTradeManagement navigates directly to trade management screen
@@ -207,7 +208,7 @@ func (n *Navigator) JumpToTradeManagement() {
 
 	// Render trade management with top bar
 	content := n.screens[8].Render()
-	n.window.SetContent(n.wrapWithTopBar(content))
+	n.setContent(n.wrapWithTopBar(content))
 }
 
 // JumpToAnalytics navigates directly to analytics screen
@@ -224,7 +225,7 @@ func (n *Navigator) JumpToAnalytics() {
 
 	// Render analytics with top bar
 	content := n.screens[9].Render()
-	n.window.SetContent(n.wrapWithTopBar(content))
+	n.setContent(n.wrapWithTopBar(content))
 }
 
 // NavigateToDashboard returns to the main dashboard
@@ -236,7 +237,7 @@ func (n *Navigator) NavigateToDashboard() {
 	// Render dashboard (pass navigator so dashboard can navigate to screens)
 	dashboard := NewDashboard(n.state, n.window, n)
 	content := dashboard.Render()
-	n.window.SetContent(n.wrapWithTopBar(content))
+	n.setContent(n.wrapWithTopBar(content))
 }
 
 // NavigateToScreen jumps directly to a specific screen by index
@@ -257,7 +258,7 @@ func (n *Navigator) NavigateToScreen(index int) error {
 	n.currentIndex = index
 	n.state.CurrentScreen = n.GetCurrentScreenName()
 	content := n.screens[n.currentIndex].Render()
-	n.window.SetContent(n.wrapWithTopBar(content))
+	n.setContent(n.wrapWithTopBar(content))
 
 	return nil
 }
@@ -318,16 +319,67 @@ func (n *Navigator) ShowHelp() {
 
 // wrapWithTopBar wraps screen content with the top navigation bar and Vimium overlay
 func (n *Navigator) wrapWithTopBar(content fyne.CanvasObject) fyne.CanvasObject {
-	// Wrap content with Vimium overlay if enabled
-	wrappedContent := n.vimiumManager.WrapContent(content)
+	// Extract scroll container from content if it exists
+	println("DEBUG: wrapWithTopBar called, searching for scroll container...")
+	scrollContainer := n.findScrollContainer(content)
+	if scrollContainer != nil && n.vimiumManager != nil {
+		println("DEBUG: Found scroll container, setting it in Vim manager")
+		n.vimiumManager.SetScrollContainer(scrollContainer)
+	} else {
+		println("DEBUG: No scroll container found in content")
+	}
 
-	return container.NewBorder(
-		n.topBar.Render(), // Top
-		nil,               // Bottom
-		nil,               // Left
-		nil,               // Right
-		wrappedContent,    // Center
+	// Wrap content with Vimium overlay if enabled
+	var wrappedContent fyne.CanvasObject = content
+	if n.vimiumManager != nil {
+		wrappedContent = n.vimiumManager.WrapContent(content)
+	}
+
+	// Create the full container with top bar
+	var topBarContent fyne.CanvasObject
+	if n.topBar != nil {
+		topBarContent = n.topBar.Render()
+	} else {
+		topBarContent = widget.NewLabel("Top Bar") // Placeholder for tests
+	}
+
+	fullContainer := container.NewBorder(
+		topBarContent,  // Top
+		nil,            // Bottom
+		nil,            // Left
+		nil,            // Right
+		wrappedContent, // Center
 	)
+
+	// Set the full container as current content so link hints can scan the top bar too
+	if n.vimiumManager != nil {
+		n.vimiumManager.SetCurrentContent(fullContainer)
+	}
+
+	return fullContainer
+}
+
+// findScrollContainer recursively searches for a scroll container in the content tree
+func (n *Navigator) findScrollContainer(obj fyne.CanvasObject) *container.Scroll {
+	if obj == nil {
+		return nil
+	}
+
+	// Check if this object is a scroll container
+	if scroll, ok := obj.(*container.Scroll); ok {
+		return scroll
+	}
+
+	// Check if it's a container and search its children
+	if c, ok := obj.(*fyne.Container); ok {
+		for _, child := range c.Objects {
+			if scroll := n.findScrollContainer(child); scroll != nil {
+				return scroll
+			}
+		}
+	}
+
+	return nil
 }
 
 // GetVimiumManager returns the Vimium manager (for adding toggle button to UI)
@@ -350,7 +402,7 @@ func (n *Navigator) NavigateToSettings() {
 
 	// Render settings with top bar
 	content := settingsScreen.Render()
-	n.window.SetContent(n.wrapWithTopBar(content))
+	n.setContent(n.wrapWithTopBar(content))
 }
 
 // ShowReference displays the requested reference material
@@ -371,5 +423,31 @@ func (n *Navigator) SetThemeToggleCallback(callback func()) {
 func (n *Navigator) UpdateThemeButton(mode string) {
 	if n.topBar != nil {
 		n.topBar.UpdateThemeButtonText(mode)
+	}
+}
+
+// setContent is a helper that wraps window.SetContent and re-attaches keyboard handlers
+func (n *Navigator) setContent(content fyne.CanvasObject) {
+	n.window.SetContent(content)
+	// Re-attach keyboard handler after content change (SetContent disconnects it)
+	if n.vimiumManager != nil {
+		n.vimiumManager.AttachKeyboardHandler()
+	}
+}
+
+// RefreshCurrentScreen re-renders the current screen (useful for vim overlay toggle)
+func (n *Navigator) RefreshCurrentScreen() {
+	if n.currentIndex == -1 {
+		// Re-render dashboard
+		n.NavigateToDashboard()
+	} else if n.currentIndex == -2 {
+		// Re-render settings
+		settingsScreen := screens.NewSettings(n.state, n.window)
+		content := settingsScreen.Render()
+		n.setContent(n.wrapWithTopBar(content))
+	} else if n.currentIndex >= 0 && n.currentIndex < len(n.screens) {
+		// Re-render current screen
+		content := n.screens[n.currentIndex].Render()
+		n.setContent(n.wrapWithTopBar(content))
 	}
 }

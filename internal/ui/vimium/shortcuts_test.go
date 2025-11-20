@@ -141,7 +141,7 @@ func TestGetShortcutHelp(t *testing.T) {
 		t.Error("GetShortcutHelp should return shortcuts")
 	}
 
-	expectedKeys := []string{"f", "j/k", "h/←", "l/→", "g", "/ or ?", "Enter", "Esc", "Ctrl+V"}
+	expectedKeys := []string{"f", "j", "k", "d", "u", "h/←", "l/→", "g", "/ or ?", "Enter", "Esc", "Ctrl+V"}
 	for _, key := range expectedKeys {
 		if _, exists := help[key]; !exists {
 			t.Errorf("GetShortcutHelp should include '%s' key", key)

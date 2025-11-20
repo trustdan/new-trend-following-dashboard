@@ -36,7 +36,8 @@
       "Bash(start disttf-engine.exe)",
       "Bash(__NEW_LINE__ echo \"=== FINAL ROOT DIRECTORY CONTENTS ===\")",
       "Bash(.build.bat)",
-      "Bash(start tf-engine.exe)"
+      "Bash(start tf-engine.exe)",
+      "Bash(start tf-engine-test.exe)"
     ],
     "deny": [],
     "ask": []
